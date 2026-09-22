@@ -213,101 +213,108 @@
             </div>
         </div>
     </div>
-    <!-- Masukkan Script Chart.js (Pastikan CDN Chart.js sudah diload di layout utama Anda) -->
-    <!-- Chart.js & Plugin Datalabels -->
-    <!-- Chart.js & Plugin Datalabels -->
+
+    <!-- Chart.js & Plugin Datalabels CDN (Pastikan letaknya di atas script inisialisasi) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     
     <script>
-        // Gunakan fungsi agar bisa dipanggil ulang saat livewire:navigated
-        if (typeof window.initDashboardCharts !== 'function') {
-            window.initDashboardCharts = function() {
-                const canvasCategory = document.getElementById('chartCategoryNg');
-                const canvasPart = document.getElementById('chartNgPart');
-
-                if (!canvasCategory || !canvasPart) return;
-
-                // Hancurkan instance chart lama jika sudah ada
-                if (window.categoryChartInstance) {
-                    window.categoryChartInstance.destroy();
-                }
-                if (window.partChartInstance) {
-                    window.partChartInstance.destroy();
-                }
-
-                // 1. Inisialisasi Chart Category NG
-                const categoryData = @json($chartCategoryNg);
-                const ctxCategory = canvasCategory.getContext('2d');
-                window.categoryChartInstance = new Chart(ctxCategory, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(categoryData),
-                        datasets: [{
-                            data: Object.values(categoryData),
-                            backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
-                            datalabels: { display: false } 
-                        }
-                    },
-                    plugins: [ChartDataLabels]
-                });
-
-               // 2. Inisialisasi Chart NG Part
-               const partData = @json($chartNgPart);
-               const ctxPart = canvasPart.getContext('2d');
-
-               window.partChartInstance = new Chart(ctxPart, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(partData),
-                        datasets: [{
-                            label: 'Total QTY NG',
-                            data: Object.values(partData),
-                            backgroundColor: '#ef4444',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            datalabels: {
-                                anchor: 'center',
-                                align: 'center',
-                                color: '#ffffff',
-                                font: {
-                                    size: 9,
-                                    weight: 'bold'
-                                },
-                                rotation: -90,
-                                formatter: function(value, context) {
-                                    return context.chart.data.labels[context.dataIndex] + ' (' + value + ')';
-                                }
-                            }
-                        },
-                        scales: {
-                            x: { display: false },
-                            y: { 
-                                beginAtZero: true, 
-                                ticks: { font: { size: 9 } } 
-                            }
-                        }
-                    },
-                    plugins: [ChartDataLabels]
-                });
+        // Definisikan fungsi global
+        window.initDashboardCharts = function() {
+            // Pastikan objek Chart dari CDN sudah benar-benar terload
+            if (typeof Chart === 'undefined') {
+                setTimeout(window.initDashboardCharts, 100); // Coba lagi setelah 100ms jika belum siap
+                return;
             }
+
+            const canvasCategory = document.getElementById('chartCategoryNg');
+            const canvasPart = document.getElementById('chartNgPart');
+
+            if (!canvasCategory || !canvasPart) return;
+
+            // Hancurkan instance chart lama jika ada untuk mencegah error canvas reuse
+            if (window.categoryChartInstance) {
+                window.categoryChartInstance.destroy();
+            }
+            if (window.partChartInstance) {
+                window.partChartInstance.destroy();
+            }
+
+            // 1. Inisialisasi Chart Category NG (Doughnut)
+            const categoryData = @json($chartCategoryNg);
+            const ctxCategory = canvasCategory.getContext('2d');
+            window.categoryChartInstance = new Chart(ctxCategory, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                        datalabels: { display: false } 
+                    }
+                }
+            });
+
+            // 2. Inisialisasi Chart NG Part (Bar)
+            const partData = @json($chartNgPart);
+            const ctxPart = canvasPart.getContext('2d');
+
+            window.partChartInstance = new Chart(ctxPart, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(partData),
+                    datasets: [{
+                        label: 'Total QTY NG',
+                        data: Object.values(partData),
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'center',
+                            align: 'center',
+                            color: '#ffffff',
+                            font: {
+                                size: 9,
+                                weight: 'bold'
+                            },
+                            rotation: -90,
+                            formatter: function(value, context) {
+                                return context.chart.data.labels[context.dataIndex] + ' (' + value + ')';
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { font: { size: 9 } } 
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
         }
 
-        // Jalankan saat pertama kali dimuat atau saat navigasi Livewire
-        document.addEventListener('DOMContentLoaded', window.initDashboardCharts);
+        // Panggil inisialisasi dengan aman
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.initDashboardCharts);
+        } else {
+            window.initDashboardCharts();
+        }
+        
         document.addEventListener('livewire:navigated', window.initDashboardCharts);
     </script>
 </x-layout>
