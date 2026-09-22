@@ -23,18 +23,18 @@ class MasterSealingController extends Controller
             $q->where('barcode_fg', 'like', "%{$search}%")
               ->orWhere('part_number_fg', 'like', "%{$search}%")
               ->orWhere('fg_name', 'like', "%{$search}%");
-        })->paginate(10, ['*'], 'fg_page');
+        })->orderby('barcode_fg', 'asc')->get();
 
         $childParts = ChildPart::when($searchCp, function ($q, $search) {
             $q->where('part_number_child_part', 'like', "%{$search}%")
               ->orWhere('material_name', 'like', "%{$search}%");
-        })->orderBy('material_name', 'asc')->paginate(10, ['*'], 'cp_page');
+        })->orderBy('material_name', 'asc')->get();
 
         $boms = Bom::when($searchBom, function ($q, $search) {
             $q->where('barcode_fg', 'like', "%{$search}%")
               ->orWhere('part_number_fg', 'like', "%{$search}%")
               ->orWhere('part_number_child_part', 'like', "%{$search}%");
-        })->paginate(10, ['*'], 'bom_page');
+        })->orderby('barcode_fg', 'asc')->get();
 
         return view('master.master_sealing', compact(
             'activeMenu', 'activeTab',

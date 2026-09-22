@@ -54,16 +54,25 @@
 
                 <!-- Input Barcode -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Scan Barcode</label>
-                    <input type="text" name="barcode" placeholder="Scan atau ketik barcode..." required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
-                    <!-- Qty default 1 untuk reguler, atau bisa disesuaikan dari master item nanti -->
-                    <input type="hidden" name="qty" value="60"> 
+                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Scan Barcode
+                        <input type="text" name="barcode" placeholder="Scan atau ketik barcode..." required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <input type="hidden" name="qty" value="60">
+                    </label>
                 </div>
 
                 <!-- Tombol Eksekusi -->
                 <div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
-                        <span>Eksekusi Scan</span>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg" wire:loading.attr="disabled">
+                        <!-- Teks normal saat tidak loading -->
+                        <span wire:loading.remove>Simpan Data</span>
+                        <!-- Teks saat tombol sedang diproses Livewire -->
+                        <span wire:loading>
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block align-middle" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Memproses...
+                        </span>
                     </button>
                 </div>
             </form>

@@ -22,7 +22,7 @@
                 
                 <!-- Child Part -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Child Part</label>
+                    <label for="child_part_select" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Child Part</label>
                     <!-- Tambahkan id="child_part_select" di sini -->
                     <select name="t_log_ng_sealing_child_part" id="child_part_select" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
                         <option value="">-- Pilih Part Number --</option>
@@ -36,21 +36,20 @@
 
                 <!-- Part Name (Otomatis Terisi & Dikirim ke Controller) -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Part Name</label>
-                    <!-- Ubah menjadi input text dengan name agar ikut terkirim ke database saat form disubmit -->
+                    <label for="part_name_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Part Name</label>
                     <input type="text" name="t_log_ng_sealing_part_name" id="part_name_input" readonly placeholder="Otomatis terisi..." class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-600 text-sm cursor-not-allowed">
                 </div>
 
                 <!-- Qty NG -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">QTY NG</label>
-                    <input type="number" name="t_log_ng_sealing_qty" placeholder="Jumlah NG..." min="1" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
+                    <label for="qty_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">QTY NG</label>
+                    <input type="number" name="t_log_ng_sealing_qty" id="qty_input" placeholder="Jumlah NG..." min="1" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
                 </div>
 
                 <!-- Keterangan NG -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Keterangan / Jenis NG</label>
-                    <select name="t_log_ng_sealing_ket" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
+                    <label for="ket_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Keterangan / Jenis NG</label>
+                    <select name="t_log_ng_sealing_ket" id="ket_input" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
                         <option value="">Pilih Keterangan NG</option>
                         <option value="Retak">Retak</option>
                         <option value="Peel off">Peel off</option>
@@ -61,8 +60,8 @@
 
                 <!-- Operator -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Operator</label>
-                    <select name="t_log_ng_sealing_operator" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
+                    <label for="operator_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Operator</label>
+                    <select name="t_log_ng_sealing_operator" id="operator_input" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
                         <option value="">Pilih Operator</option>
                         @foreach($operators as $operator)
                             <option value="{{ $operator->nama }}">{{ $operator->nama }} (Grup {{ $operator->grup }})</option>
@@ -72,8 +71,8 @@
 
                 <!-- Grup (Readonly) -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Grup</label>
-                    <input type="text" value="Grup {{ $grup }}" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
+                    <label for="group_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Grup</label>
+                    <input type="text" value="Grup {{ $grup }}" id="group_input" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
                 </div>
 
                 <!-- Tombol Simpan -->
@@ -126,22 +125,4 @@
         </div>
 
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var selectElement = document.getElementById('child_part_select');
-            if(selectElement) {
-                function updatePartName() {
-                    var selectedOption = selectElement.options[selectElement.selectedIndex];
-                    var materialName = selectedOption.getAttribute('data-name');
-                    document.getElementById('part_name_input').value = materialName ? materialName : '';
-                }
-                selectElement.addEventListener('change', updatePartName);
-                // Jalankan saat halaman dimuat (jika ada nilai lama / old value)
-                if(selectElement.value) { 
-                    updatePartName(); 
-                }
-            }
-        });
-    </script>
 </x-layout>

@@ -131,11 +131,11 @@
 
                     <!-- 1. Pilih Child Part -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Part Number Child Part</label>
+                        <label for="child_part_select" class="block text-sm font-semibold text-gray-700 mb-1">Part Number Child Part</label>
                         <select name="t_log_stock_in_child_part" id="child_part_select" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                             <option value="">-- Pilih Part Number --</option>
                             @foreach($childParts as $part)
-                                <option value="{{ $part->part_number_child_part }}" data-name="{{ $part->material_name }}" {{ old('t_log_stock_in_child_part') == $part->part_number_child_part ? 'selected' : '' }}>
+                                <option value="{{ $part->part_number_child_part }}" data-name="{{ $part->material_name }}" data-qty="{{ $part->child_part_qty }}" {{ old('t_log_stock_in_child_part') == $part->part_number_child_part ? 'selected' : '' }}>
                                     {{ $part->part_number_child_part }} - {{ $part->material_name }}
                                 </option>
                             @endforeach
@@ -147,14 +147,19 @@
 
                     <!-- 2. Nama Part (Auto Fill) -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Part (Material Name)</label>
+                        <label for="part_name_input" class="block text-sm font-semibold text-gray-700 mb-1">Nama Part (Material Name)</label>
                         <input type="text" id="part_name_input" readonly placeholder="Otomatis terisi..." class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
+                    </div>
+                    
+                    <div>
+                        <label for="current_stock_input" class="block text-sm font-semibold text-gray-700 mb-1">Stock Saat Ini</label>
+                        <input type="number" id="current_stock_input" readonly placeholder="Otomatis terisi..." class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
                     </div>
 
                     <!-- 3. QTY Input Manual -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Quantity (QTY)</label>
-                        <input type="number" name="t_log_stock_in_qty" value="{{ old('t_log_stock_in_qty') }}" min="1" placeholder="Masukkan jumlah qty..." required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <label for="qty_input" class="block text-sm font-semibold text-gray-700 mb-1">Quantity (QTY)</label>
+                        <input type="number" id="qty_input" name="t_log_stock_in_qty" value="{{ old('t_log_stock_in_qty') }}" min="1" placeholder="Masukkan jumlah qty..." required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         @error('t_log_stock_in_qty')
                             <span class="text-xs text-rose-600 mt-1">{{ $message }}</span>
                         @enderror
@@ -162,8 +167,8 @@
 
                     <!-- 4. Delivery Man -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Delivery Man (Nama Pengantar)</label>
-                        <input type="text" name="t_log_stock_in_delivery" value="{{ old('t_log_stock_in_delivery') }}" placeholder="Contoh: Budi" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <label for="delivery_input" class="block text-sm font-semibold text-gray-700 mb-1">Delivery Man (Nama Pengantar)</label>
+                        <input type="text" id="delivery_input" name="t_log_stock_in_delivery" value="{{ old('t_log_stock_in_delivery') }}" placeholder="Contoh: Budi" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         @error('t_log_stock_in_delivery')
                             <span class="text-xs text-rose-600 mt-1">{{ $message }}</span>
                         @enderror
@@ -172,12 +177,12 @@
                     <!-- Info Otomatis PIC & Grup -->
                     <div class="grid grid-cols-2 gap-3 pt-2">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">PIC (Login)</label>
-                            <input type="text" value="{{ $picName }}" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-xs cursor-not-allowed">
+                            <label for="pic_input" class="block text-xs font-semibold text-gray-500 mb-1">PIC (Login)</label>
+                            <input type="text" id="pic_input" value="{{ $picName }}" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-xs cursor-not-allowed">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Grup</label>
-                            <input type="text" value="Grup {{ $grup }}" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-xs cursor-not-allowed">
+                            <label for="group_input" class="block text-xs font-semibold text-gray-500 mb-1">Grup</label>
+                            <input type="text" id="group_input" value="Grup {{ $grup }}" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-xs cursor-not-allowed">
                         </div>
                     </div>
 
@@ -194,25 +199,5 @@
 
             </div>
         </div>
-
     </div>
-
-    <!-- Script Sederhana untuk Auto-fill Nama Part -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var selectElement = document.getElementById('child_part_select');
-            
-            function updatePartName() {
-                var selectedOption = selectElement.options[selectElement.selectedIndex];
-                var materialName = selectedOption.getAttribute('data-name');
-                document.getElementById('part_name_input').value = materialName ? materialName : '';
-            }
-
-            selectElement.addEventListener('change', updatePartName);
-            
-            if(selectElement.value) {
-                updatePartName();
-            }
-        });
-    </script>
 </x-layout>

@@ -43,17 +43,14 @@ Route::middleware(['auth.custom'])->group(function () {
     // MASTER SEALING
     Route::prefix('master-sealing')->name('master.sealing.')->group(function () {
         Route::get('/', [MasterSealingController::class, 'index'])->name('index');
-
         // Finish Good Routes
         Route::post('/fg/store', [MasterSealingController::class, 'storeFg'])->name('fg.store');
         Route::put('/fg/update/{id}', [MasterSealingController::class, 'updateFg'])->name('fg.update');
         Route::delete('/fg/delete/{id}', [MasterSealingController::class, 'destroyFg'])->name('fg.destroy');
-
         // Child Part Routes
         Route::post('/cp/store', [MasterSealingController::class, 'storeCp'])->name('cp.store');
         Route::put('/cp/update/{id}', [MasterSealingController::class, 'updateCp'])->name('cp.update');
         Route::delete('/cp/delete/{id}', [MasterSealingController::class, 'destroyCp'])->name('cp.destroy');
-
         // BOM Routes
         Route::post('/bom/store', [MasterSealingController::class, 'storeBom'])->name('bom.store');
         Route::put('/bom/update/{id}', [MasterSealingController::class, 'updateBom'])->name('bom.update');
@@ -66,7 +63,6 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->name('scan.stock_card');
     Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->name('scan.stock_in.form');
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->name('scan.stock_in.store');
-    Route::get('/scan/stock-adjustment', [ScanController::class, 'adjustmentForm'])->name('scan.stock_adjustment.form');
     Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->name('scan.stock_adjustment.store');
     Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->name('scan.nglog');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->name('scan.nglog.store');

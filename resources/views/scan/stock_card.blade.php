@@ -122,11 +122,11 @@
                 <form action="{{ route('scan.stock_adjustment.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Part Number Child Part</label>
+                        <label for="child_part_select" class="block text-sm font-semibold text-gray-700 mb-1">Part Number Child Part</label>
                         <select name="t_log_stock_adjustment_child_part" id="child_part_select" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
                             <option value="">-- Pilih Part Number --</option>
                             @foreach($childParts as $part)
-                                <option value="{{ $part->part_number_child_part }}" data-name="{{ $part->material_name }}" {{ old('t_log_stock_adjustment_child_part') == $part->part_number_child_part ? 'selected' : '' }}>
+                                <option value="{{ $part->part_number_child_part }}" data-name="{{ $part->material_name }}" data-qty="{{ $part->child_part_qty }}" {{ old('t_log_stock_adjustment_child_part') == $part->part_number_child_part ? 'selected' : '' }}>
                                     {{ $part->part_number_child_part }} - {{ $part->material_name }}
                                 </option>
                             @endforeach
@@ -134,19 +134,24 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Part (Material Name)</label>
+                        <label for="part_name_input" class="block text-sm font-semibold text-gray-700 mb-1">Nama Part (Material Name)</label>
                         <input type="text" id="part_name_input" readonly placeholder="Otomatis terisi..." class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
                     </div>
 
+                    <div>
+                        <label for="current_stock_input" class="block text-sm font-semibold text-gray-700 mb-1">Stock Saat Ini</label>
+                        <input type="number" id="current_stock_input" readonly placeholder="Otomatis terisi..." class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
+                    </div>
+
                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Stok Fisik Riil di Lapangan (QTY Aktual)</label>
-                        <input type="number" name="t_log_stock_adjustment_qty" value="{{ old('t_log_stock_adjustment_qty') }}" min="0" placeholder="Masukkan jumlah stok aktual saat ini..." required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
+                        <label for="actual_stock_input" class="block text-sm font-semibold text-gray-700 mb-1">Stok Fisik Riil di Lapangan (QTY Aktual)</label>
+                        <input type="number" id="actual_stock_input" name="t_log_stock_adjustment_qty" value="{{ old('t_log_stock_adjustment_qty') }}" min="0" placeholder="Masukkan jumlah stok aktual saat ini..." required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
                         <p class="text-xs text-gray-500 mt-1">Sistem akan otomatis menyesuaikan stok agar sama persis dengan angka ini.</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Alasan Penyesuaian (Reason)</label>
-                        <textarea name="t_log_stock_adjustment_reason" rows="2" placeholder="Contoh: Hasil Stock Opname Bulanan / Selisih Fisik" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">{{ old('t_log_stock_adjustment_reason') }}</textarea>
+                        <label for="reason_input" class="block text-sm font-semibold text-gray-700 mb-1">Alasan Penyesuaian (Reason)</label>
+                        <textarea id="reason_input" name="t_log_stock_adjustment_reason" rows="2" placeholder="Contoh: Hasil Stock Opname Bulanan / Selisih Fisik" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">{{ old('t_log_stock_adjustment_reason') }}</textarea>
                     </div>
                     <div class="flex justify-end gap-2 pt-4 border-t border-gray-100">
                         <button type="button" @click="openModal = false" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm transition">Batal</button>
@@ -230,22 +235,5 @@
                 @endif
             </div>
         </div>
-
     </div>
-
-    <!-- Script Auto-fill Nama Part -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var selectElement = document.getElementById('child_part_select');
-            if(selectElement) {
-                function updatePartName() {
-                    var selectedOption = selectElement.options[selectElement.selectedIndex];
-                    var materialName = selectedOption.getAttribute('data-name');
-                    document.getElementById('part_name_input').value = materialName ? materialName : '';
-                }
-                selectElement.addEventListener('change', updatePartName);
-                if(selectElement.value) { updatePartName(); }
-            }
-        });
-    </script>
 </x-layout>

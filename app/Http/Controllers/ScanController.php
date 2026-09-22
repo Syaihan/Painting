@@ -155,7 +155,7 @@ class ScanController extends Controller
         $activeMenu = 'Stock In';
         $search = $request->input('search');
 
-        $childParts = ChildPart::orderBy('material_name', 'asc')->get();
+        $childParts = ChildPart::orderBy('part_number_child_part', 'asc')->get();
 
         $query = DB::table('t_log_stock_in')->orderBy('t_log_stock_in_timestamp', 'desc');
 
@@ -221,28 +221,6 @@ class ScanController extends Controller
 
             return back()->with('error', 'Gagal memproses stock in: ' . $e->getMessage())->withInput();
         }
-    }
-
-    public function adjustmentForm(Request $request)
-    {
-        $activeMenu = 'Stock Adjustment';
-        $search = $request->input('search');
-
-        $childParts = ChildPart::orderBy('material_name', 'asc')->get();
-
-        $query = DB::table('t_log_stock_adjustment')->orderBy('t_log_stock_adjustment_timestamp', 'desc');
-
-        if ($search) {
-            $query->where('t_log_stock_adjustment_child_part', 'like', "%{$search}%")
-                ->orWhere('t_log_stock_adjustment_part_name', 'like', "%{$search}%")
-                ->orWhere('t_log_stock_adjustment_reason', 'like', "%{$search}%")
-                ->orWhere('t_log_stock_adjustment_pic', 'like', "%{$search}%");
-        }
-
-        $adjustmentLogs = $query->paginate(10);
-        $authInfo = $this->getPicAndGroup();
-
-        return view('scan.stock_adjustment', array_merge(compact('activeMenu', 'childParts', 'adjustmentLogs', 'search'), $authInfo));
     }
 
     public function adjustmentStore(Request $request)
@@ -322,7 +300,7 @@ class ScanController extends Controller
     {
         $activeMenu = 'NG Log';
         $ngHistory  = NgSealingLog::orderBy('t_log_ng_sealing_id', 'desc')->get();
-        $childParts = ChildPart::orderBy('material_name', 'asc')->get();
+        $childParts = ChildPart::orderBy('part_number_child_part', 'asc')->get();
         $operators  = $this->getOperatorsByRole();
         $grup       = session('operator_role', '-');
 
