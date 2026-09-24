@@ -59,12 +59,24 @@
             </button>
             
             <div x-show="isOpen && openScan" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
+                @hasPermission('access-scan-console')
                 <a href="/scan/console" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/console') ? 'bg-slate-800 text-white font-bold' : '' }}">Scan Console</a>
+                @endhasPermission
+                @hasPermission('access-stock-card')
                 <a href="/scan/stock-card" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-card') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock Card</a>
+                @endhasPermission
+                @hasPermission('access-stock-in')
                 <a href="/scan/stock-in" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-in') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock In</a>
+                @endhasPermission
+                @hasPermission('access-ng-log')
                 <a href="/scan/nglog" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/nglog') ? 'bg-slate-800 text-white font-bold' : '' }}">NG Log</a>
+                @endhasPermission
+                
                 <a href="#" class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition">Riwayat Stock</a>
+                
+                @hasPermission('access-master-part')
                 <a href="/master-sealing" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>
+                @endhasPermission
             </div>
         </div>
 

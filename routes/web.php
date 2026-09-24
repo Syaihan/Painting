@@ -16,11 +16,11 @@ Route::middleware(['guest.custom'])->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // DASHBOARD
-Route::get('/dashboard', function () {
-    return view('dashboard', [
-        'activeMenu' => 'Dashboard'
-    ]);
-})->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard', [
+//         'activeMenu' => 'Dashboard'
+//     ]);
+// })->name('dashboard');
 
 Route::get('/dashboard/slide', function () {
     return view('dashboardslide', [
@@ -30,7 +30,7 @@ Route::get('/dashboard/slide', function () {
 
 // DASHBOARD/coating
 Route::get('/dashboard/coating', function () {
-    return view('dashboard_coating', [
+    return view('/dashboard/coating', [
         'activeMenu' => 'Dashboard Coating'
     ]);
 })->name('dashboard.coating');
@@ -58,14 +58,14 @@ Route::middleware(['auth.custom'])->group(function () {
     });
 
     // SCAN/console
-    Route::get('/scan/console', [ScanController::class, 'console'])->name('scan.console');
-    Route::post('/scan/store', [ScanController::class, 'consolestore'])->name('scan.store');
-    Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->name('scan.stock_card');
-    Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->name('scan.stock_in.form');
-    Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->name('scan.stock_in.store');
-    Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->name('scan.stock_adjustment.store');
-    Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->name('scan.nglog');
-    Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->name('scan.nglog.store');
+    Route::get('/scan/console', [ScanController::class, 'console'])->middleware('permission:access-scan-console')->name('scan.console');
+    Route::post('/scan/store', [ScanController::class, 'consolestore'])->middleware('permission:access-scan-console')->name('scan.store');
+    Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->middleware('permission:access-stock-card')->name('scan.stock_card');
+    Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->middleware('permission:access-stock-adjustment')->name('scan.stock_adjustment.store');
+    Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->middleware('permission:access-stock-in')->name('scan.stock_in.form');
+    Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
+    Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:access-ng-log')->name('scan.nglog');
+    Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
 });
 
 // 3. Pengaturan Root URL ('/') langsung menampilkan view slide

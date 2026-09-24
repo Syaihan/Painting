@@ -50,9 +50,9 @@
                     <!-- Menampilkan Menu yang Sedang Active -->
                     <h1 class="text-lg font-bold text-gray-800 uppercase tracking-wide">
                         @if ($activeMenu === 'Dashboard Coating')
-                            <a href="/dashboard" wire:navigate>Dashboard Coating</a>
+                            <a href="/" wire:navigate>Dashboard Coating</a>
                         @elseif ($activeMenu === 'Dashboard Sealing')
-                            <a href="/dashboard" wire:navigate>Dashboard Sealing</a>
+                            <a href="/" wire:navigate>Dashboard Sealing</a>
                         @else
                             {{ $activeMenu ?? 'Dashboard' }}
                         @endif

@@ -27,7 +27,7 @@ class DashboardController extends Controller
         $history       = $this->getRecentTransactions();
         $charts        = $this->getFiscalYearCharts();
         
-        return view('dashboard_sealing', array_merge(
+        return view('/dashboard/sealing', array_merge(
             compact('activeMenu', 'currentDate', 'stats', 'nonSafeStocks', 'history'),
             $charts
         ));
@@ -80,7 +80,7 @@ class DashboardController extends Controller
                 't_log_scan_grup as grup'
             )
             ->orderBy('t_log_scan_timestamp', 'desc')
-            ->limit(50)
+            ->limit(10)
             ->get();
     }
 

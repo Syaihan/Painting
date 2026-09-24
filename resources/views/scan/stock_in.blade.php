@@ -128,7 +128,6 @@
                 <!-- FORM INPUT -->
                 <form action="{{ route('scan.stock_in.store') }}" method="POST" class="space-y-4">
                     @csrf
-
                     <!-- 1. Pilih Child Part -->
                     <div>
                         <label for="child_part_select" class="block text-sm font-semibold text-gray-700 mb-1">Part Number Child Part</label>

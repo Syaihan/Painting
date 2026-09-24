@@ -52,7 +52,7 @@ class AuthController extends Controller
                 'permissions'   => $permissions,
             ]);
 
-            return redirect()->route('dashboard')->with('success', 'Berhasil login!');
+            return redirect('/')->with('success', 'Berhasil login!');
         }
 
         return back()->withErrors(['username' => 'Username atau password salah.'])->withInput();
