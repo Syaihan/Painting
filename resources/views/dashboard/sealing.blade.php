@@ -243,23 +243,64 @@
             // 1. Inisialisasi Chart Category NG (Doughnut)
             const categoryData = @json($chartCategoryNg);
             const ctxCategory = canvasCategory.getContext('2d');
+
             window.categoryChartInstance = new Chart(ctxCategory, {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
                     labels: Object.keys(categoryData),
                     datasets: [{
                         data: Object.values(categoryData),
-                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa']
+                        backgroundColor: [
+                            '#f87171',
+                            '#fbbf24',
+                            '#34d399',
+                            '#60a5fa',
+                            '#a78bfa'
+                        ]
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+
                     plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
-                        datalabels: { display: false } 
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+
+                        datalabels: {
+                            display: true,
+
+                            color: '#ffffff',
+
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            },
+
+                            formatter: function(value, context) {
+                                const data = context.chart.data.datasets[0].data;
+
+                                // Hitung total semua category
+                                const total = data.reduce((sum, val) => sum + val, 0);
+
+                                // Hitung persentase
+                                const percentage = (value / total) * 100;
+
+                                // Tampilkan 1 angka di belakang koma
+                                return percentage.toFixed(1) + '%';
+                            }
+                        }
                     }
-                }
+                },
+
+                plugins: [ChartDataLabels]
             });
 
             // 2. Inisialisasi Chart NG Part (Bar)

@@ -4,7 +4,7 @@
     
     <!-- Brand / Logo Title -->
     <div class="p-1 bg-slate-800 text-center font-black text-lg tracking-wider border-b border-slate-600 flex items-center justify-center overflow-hidden">
-        <a href="/dashboard" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
+        <a href="/" wire:navigate class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
             <h1 x-show="isOpen" class="truncate tracking-wider font-medium inline-flex items-center">
                 <span class="text-blue-600">Paint</span>
                 <span class="text-orange-500">HUB</span>
@@ -39,8 +39,8 @@
             </button>
             
             <div x-show="isOpen && openDashboard" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
-                <a href="/dashboard/coating" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('dashboard/coating') ? 'bg-slate-800 text-white font-bold' : '' }}">Dashboard Coating</a>
-                <a href="/dashboard/sealing" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('dashboard/sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Dashboard Sealing</a>
+                <a href="{{ route('dashboard.coating') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('dashboard/coating') ? 'bg-slate-800 text-white font-bold' : '' }}">Dashboard Coating</a>
+                <a href="{{ route('dashboard.sealing') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('dashboard/sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Dashboard Sealing</a>
             </div>
         </div>
 
@@ -60,22 +60,22 @@
             
             <div x-show="isOpen && openScan" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
                 @hasPermission('access-scan-console')
-                <a href="/scan/console" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/console') ? 'bg-slate-800 text-white font-bold' : '' }}">Scan Console</a>
+                <a href="{{ route('scan.console') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/console') ? 'bg-slate-800 text-white font-bold' : '' }}">Scan Console</a>
                 @endhasPermission
                 @hasPermission('access-stock-card')
-                <a href="/scan/stock-card" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-card') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock Card</a>
+                <a href="{{ route('scan.stock_card') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-card') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock Card</a>
                 @endhasPermission
                 @hasPermission('access-stock-in')
-                <a href="/scan/stock-in" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-in') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock In</a>
+                <a href="{{ route('scan.stock_in.form') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-in') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock In</a>
                 @endhasPermission
                 @hasPermission('access-ng-log')
-                <a href="/scan/nglog" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/nglog') ? 'bg-slate-800 text-white font-bold' : '' }}">NG Log</a>
+                <a href="{{ route('scan.nglog') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/nglog') ? 'bg-slate-800 text-white font-bold' : '' }}">NG Log</a>
                 @endhasPermission
                 
                 <a href="#" class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition">Riwayat Stock</a>
                 
                 @hasPermission('access-master-part')
-                <a href="/master-sealing" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>
+                <a href="{{ route('master.sealing.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>
                 @endhasPermission
             </div>
         </div>

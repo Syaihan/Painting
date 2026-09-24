@@ -23,7 +23,7 @@
     </style>
 </head>
 <body class="relative w-full h-full bg-black overflow-hidden">
-    <a href="{{ route('dashboard') }}" 
+    <a href="/" 
        class="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-red-600/80 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-lg backdrop-blur-md opacity-30 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>

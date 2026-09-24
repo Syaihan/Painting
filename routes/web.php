@@ -15,33 +15,26 @@ Route::middleware(['guest.custom'])->group(function () {
 // Route Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// DASHBOARD
-// Route::get('/dashboard', function () {
-//     return view('dashboard', [
-//         'activeMenu' => 'Dashboard'
-//     ]);
-// })->name('dashboard');
-
-Route::get('/dashboard/slide', function () {
+Route::get('/slide', function () {
     return view('dashboardslide', [
         'activeMenu' => 'Dashboard Slide'
     ]);
 })->name('dashboardslide');
 
 // DASHBOARD/coating
-Route::get('/dashboard/coating', function () {
+Route::get('/coating', function () {
     return view('/dashboard/coating', [
         'activeMenu' => 'Dashboard Coating'
     ]);
 })->name('dashboard.coating');
 
 // DASHBOARD/sealing
-Route::get('/dashboard/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
+Route::get('/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
 
 // 2. Route yang Membutuhkan Login (Custom Auth)
 Route::middleware(['auth.custom'])->group(function () {
     // MASTER SEALING
-    Route::prefix('master-sealing')->name('master.sealing.')->group(function () {
+    Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {
         Route::get('/', [MasterSealingController::class, 'index'])->name('index');
         // Finish Good Routes
         Route::post('/fg/store', [MasterSealingController::class, 'storeFg'])->name('fg.store');
