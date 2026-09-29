@@ -11,9 +11,25 @@ Route::middleware(['guest.custom'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 });
-
 // Route Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Route yang dilindungi Session Autentikasi
+Route::group(['middleware' => function ($request, $next) {
+    if (!session()->has('operator_id')) {
+        return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
+    }
+    return $next($request);
+}], function () {
+    // Ubah Password
+    Route::get('/password/change', [AuthController::class, 'showChangePasswordForm'])->name('password.change.form');
+    Route::post('/password/change', [AuthController::class, 'updatePassword'])->name('password.change.process');
+
+    // Manajemen User & Registrasi Terpusat (Khusus Admin)
+    Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
+    Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
+    Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update'); // Tambahan Rute Edit
+    Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
+});
 
 Route::get('/slide', function () {
     return view('dashboardslide', [

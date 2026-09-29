@@ -106,6 +106,13 @@
             </div>
         </div>
 
+        <!-- Menu Dropdown: Manajemen User -->
+        @hasPermission('access-manajemen-user')
+        <a href="{{ route('manajemen.user') }}" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
+            <span class="text-lg">🧑‍💼</span>
+            <span x-show="isOpen">User manajemen</span>
+        </a>
+        @endhasPermission
     </nav>
 
     <!-- Sidebar Footer -->
