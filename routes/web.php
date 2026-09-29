@@ -30,6 +30,7 @@ Route::get('/coating', function () {
 
 // DASHBOARD/sealing
 Route::get('/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
+Route::get('/sealing/data', [DashboardController::class, 'sealingData'])->name('dashboard.sealing.data');
 
 // 2. Route yang Membutuhkan Login (Custom Auth)
 Route::middleware(['auth.custom'])->group(function () {

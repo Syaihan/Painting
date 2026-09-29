@@ -109,4 +109,19 @@ class DashboardController extends Controller
 
         return compact('chartCategoryNg', 'chartNgPart');
     }
+
+    public function sealingData()
+    {
+        // Ambil data periode shift produksi yang sama
+        $shiftData = getActiveShiftData();
+        $start     = $shiftData['start_time'];
+        $end       = $shiftData['end_time'];
+        $currentDate = strtoupper(Carbon::now('Asia/Jakarta')->format('d F Y'));
+
+        return response()->json(array_merge([
+            'stats'         => $this->calculateStatistics($start, $end, $currentDate),
+            'nonSafeStocks' => $this->getNonSafeStocks(),
+            'history'       => $this->getRecentTransactions(),
+        ], $this->getFiscalYearCharts()));
+    }
 }

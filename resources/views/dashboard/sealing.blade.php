@@ -13,7 +13,7 @@
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-blue-50 text-blue-600 rounded-lg text-xl group-hover:scale-110 transition-transform">📦</span>
                     <div class="text-right">
-                        <span class="text-2xl font-black text-gray-900">{{ $stats['total_part'] }}</span>
+                        <span id="stat-total-part" class="text-2xl font-black text-gray-900">{{ $stats['total_part'] }}</span>
                     </div>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg text-xl group-hover:scale-110 transition-transform">🛡️</span>
                     <div class="text-right">
-                        <span class="text-2xl font-black text-emerald-700">{{ $stats['safe'] }}</span>
+                        <span id="stat-safe" class="text-2xl font-black text-emerald-700">{{ $stats['safe'] }}</span>
                         <div class="text-[9px] text-gray-400 font-bold uppercase">Part Number</div>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-amber-50 text-amber-600 rounded-lg text-xl group-hover:scale-110 transition-transform">⚠️</span>
                     <div class="text-right">
-                        <span class="text-2xl font-black text-amber-600">{{ $stats['under_minimum'] }}</span>
+                        <span id="stat-under-minimum" class="text-2xl font-black text-amber-600">{{ $stats['under_minimum'] }}</span>
                         <div class="text-[9px] text-gray-400 font-bold uppercase">Part Number</div>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-rose-50 text-rose-600 rounded-lg text-xl group-hover:scale-110 transition-transform">❌</span>
                     <div class="text-right">
-                        <span class="text-2xl font-black text-rose-600">{{ $stats['investigate'] }}</span>
+                        <span id="stat-investigate" class="text-2xl font-black text-rose-600">{{ $stats['investigate'] }}</span>
                         <div class="text-[9px] text-gray-400 font-bold uppercase">Part Number</div>
                     </div>
                 </div>
@@ -62,13 +62,13 @@
 
             <!-- TOTAL SCAN TODAY -->
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold py-1.5 px-2 text-[10px] truncate text-center">
+                <div id="date-label-1" class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold py-1.5 px-2 text-[10px] truncate text-center">
                     {{ $currentDate }}
                 </div>
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg text-lg group-hover:scale-110 transition-transform">📊</span>
                     <div class="text-right">
-                        <span class="text-xl font-black text-indigo-900">{{ $stats['total_scan'] }}</span>
+                        <span id="stat-total-scan" class="text-xl font-black text-indigo-900">{{ $stats['total_scan'] }}</span>
                         <div class="text-[8px] text-gray-400 font-bold uppercase">Scan Today</div>
                     </div>
                 </div>
@@ -76,13 +76,13 @@
 
             <!-- TOTAL NG TODAY -->
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-                <div class="bg-gradient-to-r from-red-700 to-rose-800 text-white font-semibold py-1.5 px-2 text-[10px] truncate text-center">
+                <div id="date-label-2" class="bg-gradient-to-r from-red-700 to-rose-800 text-white font-semibold py-1.5 px-2 text-[10px] truncate text-center">
                     {{ $currentDate }}
                 </div>
                 <div class="flex items-center justify-between p-4 bg-white">
                     <span class="p-2.5 bg-red-50 text-red-600 rounded-lg text-lg group-hover:scale-110 transition-transform">📋</span>
                     <div class="text-right">
-                        <span class="text-xl font-black text-red-600">{{ $stats['total_ng'] }}</span>
+                        <span id="stat-total-ng" class="text-xl font-black text-red-600">{{ $stats['total_ng'] }}</span>
                         <div class="text-[8px] text-gray-400 font-bold uppercase">NG Today</div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                                 <th class="p-2.5 border-b border-gray-200">QTY</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody id="table-history-body" class="divide-y divide-gray-100">
                             @forelse($history as $row)
                             <tr class="hover:bg-blue-50/40 transition-colors">
                                 <td class="p-2.5 font-mono text-gray-500">{{ $row->jam }}</td>
@@ -188,7 +188,7 @@
                                 <th class="p-2.5 border-b border-gray-200">STATUS</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody id="table-nonsafe-body" class="divide-y divide-gray-100">
                             @forelse($nonSafeStocks as $stock)
                             <tr class="text-center hover:bg-rose-50/30 transition-colors">
                                 <td class="p-2.5 text-left font-mono text-[10px] text-gray-700 font-medium">{{ $stock['part_number'] }}</td>
@@ -214,16 +214,15 @@
         </div>
     </div>
 
-    <!-- Chart.js & Plugin Datalabels CDN (Pastikan letaknya di atas script inisialisasi) -->
+    <!-- Chart.js & Plugin Datalabels CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     
     <script>
-        // Definisikan fungsi global
-        window.initDashboardCharts = function() {
-            // Pastikan objek Chart dari CDN sudah benar-benar terload
-            if (typeof Chart === 'undefined') {
-                setTimeout(window.initDashboardCharts, 100); // Coba lagi setelah 100ms jika belum siap
+        // Fungsi inisialisasi chart dengan parameter data opsional untuk update berkala
+        window.initDashboardCharts = function(initialCategoryData = null, initialPartData = null) {
+            if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
+                setTimeout(() => window.initDashboardCharts(initialCategoryData, initialPartData), 100);
                 return;
             }
 
@@ -232,7 +231,7 @@
 
             if (!canvasCategory || !canvasPart) return;
 
-            // Hancurkan instance chart lama jika ada untuk mencegah error canvas reuse
+            // Hancurkan instance chart lama untuk mencegah error canvas reuse
             if (window.categoryChartInstance) {
                 window.categoryChartInstance.destroy();
             }
@@ -240,74 +239,44 @@
                 window.partChartInstance.destroy();
             }
 
-            // 1. Inisialisasi Chart Category NG (Doughnut)
-            const categoryData = @json($chartCategoryNg);
-            const ctxCategory = canvasCategory.getContext('2d');
-
-            window.categoryChartInstance = new Chart(ctxCategory, {
+            // 1. Chart Category NG (Pie)
+            const categoryData = initialCategoryData || @json($chartCategoryNg);
+            window.categoryChartInstance = new Chart(canvasCategory.getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: Object.keys(categoryData),
                     datasets: [{
                         data: Object.values(categoryData),
-                        backgroundColor: [
-                            '#f87171',
-                            '#fbbf24',
-                            '#34d399',
-                            '#60a5fa',
-                            '#a78bfa'
-                        ]
+                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa']
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                font: {
-                                    size: 10
-                                }
-                            }
+                            labels: { boxWidth: 12, font: { size: 10 } }
                         },
-
                         datalabels: {
                             display: true,
-
                             color: '#ffffff',
-
-                            font: {
-                                size: 11,
-                                weight: 'bold'
-                            },
-
+                            font: { size: 11, weight: 'bold' },
                             formatter: function(value, context) {
                                 const data = context.chart.data.datasets[0].data;
-
-                                // Hitung total semua category
                                 const total = data.reduce((sum, val) => sum + val, 0);
-
-                                // Hitung persentase
-                                const percentage = (value / total) * 100;
-
-                                // Tampilkan 1 angka di belakang koma
-                                return percentage.toFixed(1) + '%';
+                                if (total === 0) return '0%';
+                                return ((value / total) * 100).toFixed(1) + '%';
                             }
                         }
                     }
                 },
-
                 plugins: [ChartDataLabels]
             });
 
-            // 2. Inisialisasi Chart NG Part (Bar)
-            const partData = @json($chartNgPart);
-            const ctxPart = canvasPart.getContext('2d');
-
-            window.partChartInstance = new Chart(ctxPart, {
+            // 2. Chart NG Part (Bar)
+            const partData = initialPartData || @json($chartNgPart);
+            window.partChartInstance = new Chart(canvasPart.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: Object.keys(partData),
@@ -327,10 +296,7 @@
                             anchor: 'center',
                             align: 'center',
                             color: '#ffffff',
-                            font: {
-                                size: 9,
-                                weight: 'bold'
-                            },
+                            font: { size: 9, weight: 'bold' },
                             rotation: -90,
                             formatter: function(value, context) {
                                 return context.chart.data.labels[context.dataIndex] + ' (' + value + ')';
@@ -339,23 +305,109 @@
                     },
                     scales: {
                         x: { display: false },
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { font: { size: 9 } } 
-                        }
+                        y: { beginAtZero: true, ticks: { font: { size: 9 } } }
                     }
                 },
                 plugins: [ChartDataLabels]
             });
         }
 
-        // Panggil inisialisasi dengan aman
+        // Fungsi AJAX Polling setiap 5 detik
+        function startDashboardPolling() {
+            setInterval(async () => {
+                try {
+                    let response = await fetch("{{ route('dashboard.sealing.data') }}");
+                    if (!response.ok) return;
+                    let res = await response.json();
+
+                    // 1. Update Kartu Statistik Utama
+                    document.getElementById('stat-total-part').innerText = res.stats.total_part;
+                    document.getElementById('stat-safe').innerText = res.stats.safe;
+                    document.getElementById('stat-under-minimum').innerText = res.stats.under_minimum;
+                    document.getElementById('stat-investigate').innerText = res.stats.investigate;
+                    document.getElementById('stat-total-scan').innerText = res.stats.total_scan;
+                    document.getElementById('stat-total-ng').innerText = res.stats.total_ng;
+                    
+                    document.getElementById('date-label-1').innerText = res.stats.date;
+                    document.getElementById('date-label-2').innerText = res.stats.date;
+
+                    // 2. Update Charts dengan data baru
+                    // window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
+
+                    // 3. Update Tabel History Transaksi
+                    let historyHtml = '';
+                    if (res.history.length > 0) {
+                        res.history.forEach(row => {
+                            historyHtml += `
+                                <tr class="hover:bg-blue-50/40 transition-colors">
+                                    <td class="p-2.5 font-mono text-gray-500">${row.jam}</td>
+                                    <td class="p-2.5 font-mono text-left font-medium text-gray-700">${row.fq}</td>
+                                    <td class="p-2.5 text-left text-gray-800 font-medium">${row.part_number}</td>
+                                    <td class="p-2.5 text-gray-600">${row.pic}</td>
+                                    <td class="p-2.5 font-semibold text-gray-700">
+                                        <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup ${row.grup}</span>
+                                    </td>
+                                    <td class="p-2.5 font-bold text-blue-600">${row.qty}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        historyHtml = `<tr><td colspan="6" class="p-8 text-center text-gray-400 text-xs italic">Belum ada riwayat transaksi scan hari ini.</td></tr>`;
+                    }
+                    document.getElementById('table-history-body').innerHTML = historyHtml;
+
+                    // 4. Update Tabel Card Stock Sealing (Non-Safe)
+                    let nonSafeHtml = '';
+                    if (res.nonSafeStocks.length > 0) {
+                        res.nonSafeStocks.forEach(stock => {
+                            let badgeClass = stock.status === 'Investigate' 
+                                ? 'bg-rose-100 text-rose-700 border border-rose-200' 
+                                : 'bg-amber-100 text-amber-800 border border-amber-200';
+                            nonSafeHtml += `
+                                <tr class="text-center hover:bg-rose-50/30 transition-colors">
+                                    <td class="p-2.5 text-left font-mono text-[10px] text-gray-700 font-medium">${stock.part_number}</td>
+                                    <td class="p-2.5 text-left text-[10px] text-gray-600">${stock.part_name}</td>
+                                    <td class="p-2.5 font-bold text-gray-800">${stock.balance}</td>
+                                    <td class="p-2.5">
+                                        <span class="${badgeClass} px-2 py-0.5 rounded-md text-[10px] font-semibold inline-block">
+                                            ${stock.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        nonSafeHtml = `<tr><td colspan="4" class="p-8 text-center text-gray-400 text-xs italic">Tidak ada item non-safe. Semua stok dalam kondisi aman! 🎉</td></tr>`;
+                    }
+                    document.getElementById('table-nonsafe-body').innerHTML = nonSafeHtml;
+
+                } catch (error) {
+                    console.error("Gagal memperbarui data dashboard:", error);
+                }
+            }, 5000); // Interval 5000ms = 5 detik
+            setInterval(async () => {
+                let response = await fetch("{{ route('dashboard.sealing.data') }}");
+                if (!response.ok) return;
+                let res = await response.json();
+
+                window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
+            },60000);
+        }
+
+        // Inisialisasi awal saat halaman dimuat
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', window.initDashboardCharts);
+            document.addEventListener('DOMContentLoaded', () => {
+                window.initDashboardCharts();
+                startDashboardPolling();
+            });
         } else {
             window.initDashboardCharts();
+            startDashboardPolling();
         }
         
-        document.addEventListener('livewire:navigated', window.initDashboardCharts);
+        document.addEventListener('livewire:navigated', () => {
+            window.initDashboardCharts();
+            startDashboardPolling();
+        });
     </script>
 </x-layout>
