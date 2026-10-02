@@ -72,7 +72,7 @@
                 <a href="{{ route('scan.nglog') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/nglog') ? 'bg-slate-800 text-white font-bold' : '' }}">NG Log</a>
                 @endhasPermission
                 
-                <a href="#" class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition">Riwayat Stock</a>
+                <a href="{{ route('scan.history')}}" class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition">Riwayat Scan</a>
                 
                 @hasPermission('access-master-part')
                 <a href="{{ route('master.sealing.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>

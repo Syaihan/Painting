@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ScanLog;
 use App\Models\Operator;
 use App\Models\Bom;
 use App\Models\ChildPart;
@@ -350,5 +351,56 @@ class ScanController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Gagal memproses NG: ' . $e->getMessage());
         }
+    }
+
+    public function riwayatScan(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $searches = $request->input('search', []); // Menerima array search per kolom
+
+        $query = ScanLog::query(); // Sesuaikan dengan nama Model Anda
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_scan_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        // Pencarian Global (Semua Kolom)
+        if (!empty($searches['all'])) {
+            $keywordAll = $searches['all'];
+            $query->where(function($q) use ($keywordAll) {
+                $q->where('t_log_scan_fg', 'like', "%{$keywordAll}%")
+                ->orWhere('t_log_scan_fg_part_number', 'like', "%{$keywordAll}%")
+                ->orWhere('t_log_scan_operator', 'like', "%{$keywordAll}%")
+                ->orWhere('t_log_scan_pic', 'like', "%{$keywordAll}%")
+                ->orWhere('t_log_scan_grup', 'like', "%{$keywordAll}%");
+            });
+        }
+
+        // Pencarian Spesifik Per Kolom
+        $columns = ['t_log_scan_fg', 't_log_scan_fg_part_number', 't_log_scan_operator', 't_log_scan_pic', 't_log_scan_grup'];
+        foreach ($columns as $col) {
+            if (!empty($searches[$col])) {
+                $query->where($col, 'like', "%{$searches[$col]}%");
+            }
+        }
+
+        $logs = $query->orderby('t_log_scan_timestamp', 'desc')->paginate(10)->withQueryString();
+
+        // Jika request AJAX, kembalikan JSON berisi HTML partial
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('scan.partials.riwayat_scan_table', compact('logs'))->render()
+            ]);
+        }
+
+        return view('scan.riwayat_scan', [
+            'activeMenu' => 'Riwayat Scan',
+            'logs' => $logs,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'search' => $searches
+        ]);
     }
 }

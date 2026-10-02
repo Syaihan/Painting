@@ -11,45 +11,23 @@ Route::middleware(['guest.custom'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 });
+
 // Route Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-// Route yang dilindungi Session Autentikasi
-Route::group(['middleware' => function ($request, $next) {
-    if (!session()->has('operator_id')) {
-        return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
-    }
-    return $next($request);
-}], function () {
-    // Ubah Password
+
+// 2. Route yang Membutuhkan Login (Menggunakan group middleware standar/custom, TANPA Closure)
+Route::middleware(['auth.custom'])->group(function () {
+
+    // Ubah Password (Menggunakan middleware auth.custom yang sudah ada)
     Route::get('/password/change', [AuthController::class, 'showChangePasswordForm'])->name('password.change.form');
     Route::post('/password/change', [AuthController::class, 'updatePassword'])->name('password.change.process');
 
     // Manajemen User & Registrasi Terpusat (Khusus Admin)
     Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
     Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
-    Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update'); // Tambahan Rute Edit
+    Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update');
     Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
-});
 
-Route::get('/slide', function () {
-    return view('dashboardslide', [
-        'activeMenu' => 'Dashboard Slide'
-    ]);
-})->name('dashboardslide');
-
-// DASHBOARD/coating
-Route::get('/coating', function () {
-    return view('/dashboard/coating', [
-        'activeMenu' => 'Dashboard Coating'
-    ]);
-})->name('dashboard.coating');
-
-// DASHBOARD/sealing
-Route::get('/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
-Route::get('/sealing/data', [DashboardController::class, 'sealingData'])->name('dashboard.sealing.data');
-
-// 2. Route yang Membutuhkan Login (Custom Auth)
-Route::middleware(['auth.custom'])->group(function () {
     // MASTER SEALING
     Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {
         Route::get('/', [MasterSealingController::class, 'index'])->name('index');
@@ -76,9 +54,26 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
     Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:access-ng-log')->name('scan.nglog');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
+    Route::get('/scan/riwayat-scan', [ScanController::class, 'riwayatScan'])->name('scan.history');
 });
 
-// 3. Pengaturan Root URL ('/') langsung menampilkan view slide
+// DASHBOARD SLIDE & COATING (Bebas / Public atau sesuaikan kebutuhan)
+Route::get('/slide', function () {
+    return view('dashboardslide', [
+        'activeMenu' => 'Dashboard Slide'
+    ]);
+})->name('dashboardslide');
+
+Route::get('/coating', function () {
+    return view('/dashboard/coating', [
+        'activeMenu' => 'Dashboard Coating'
+    ]);
+})->name('dashboard.coating');
+
+Route::get('/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
+Route::get('/sealing/data', [DashboardController::class, 'sealingData'])->name('dashboard.sealing.data');
+
+// Root URL ('/')
 Route::get('/', function () {
     return view('dashboard', [
         'activeMenu' => 'Dashboard'
