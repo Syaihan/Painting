@@ -13,6 +13,17 @@
             </div>
         @endif
 
+        @if($errors->any())
+            <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-xl shadow-sm text-rose-800 text-sm">
+                <p class="font-semibold mb-1">Terjadi kesalahan validasi:</p>
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <!-- FORM INPUT NG SEALING -->
         <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-200 p-6">
             <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">Input Data NG Sealing</h3>
@@ -73,6 +84,7 @@
                 <div>
                     <label for="group_input" class="block text-xs font-semibold text-gray-700 uppercase mb-1">Grup</label>
                     <input type="text" value="Grup {{ $grup }}" id="group_input" readonly class="w-full rounded-lg bg-gray-50 border-gray-300 text-gray-500 text-sm cursor-not-allowed">
+                    <input type="hidden" name="t_log_ng_sealing_grup" value="{{ $grup }}">
                 </div>
 
                 <!-- Tombol Simpan -->

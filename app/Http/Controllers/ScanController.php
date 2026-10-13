@@ -315,6 +315,7 @@ class ScanController extends Controller
             't_log_ng_sealing_qty'        => 'required|integer|min:1',
             't_log_ng_sealing_ket'        => 'required',
             't_log_ng_sealing_operator'   => 'required',
+            't_log_ng_sealing_grup'       => 'required',
         ]);
 
         DB::beginTransaction();

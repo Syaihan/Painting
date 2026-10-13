@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ScanController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterSealingController;
+use App\Http\Controllers\ScanController;
+use Illuminate\Support\Facades\Route;
 
 // 1. Route Tamu (Hanya untuk yang BELUM login)
 Route::middleware(['guest.custom'])->group(function () {
@@ -41,8 +41,8 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::delete('/cp/delete/{id}', [MasterSealingController::class, 'destroyCp'])->name('cp.destroy');
         // BOM Routes
         Route::post('/bom/store', [MasterSealingController::class, 'storeBom'])->name('bom.store');
-        Route::put('/bom/update/{id}', [MasterSealingController::class, 'updateBom'])->name('bom.update');
-        Route::delete('/bom/delete/{id}', [MasterSealingController::class, 'destroyBom'])->name('bom.destroy');
+        Route::put('/bom/update/{barcode}/{childPart}', [MasterSealingController::class, 'updateBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.update');
+        Route::delete('/bom/delete/{barcode}/{childPart}', [MasterSealingController::class, 'destroyBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.destroy');
     });
 
     // SCAN/console
@@ -60,13 +60,13 @@ Route::middleware(['auth.custom'])->group(function () {
 // DASHBOARD SLIDE & COATING (Bebas / Public atau sesuaikan kebutuhan)
 Route::get('/slide', function () {
     return view('dashboardslide', [
-        'activeMenu' => 'Dashboard Slide'
+        'activeMenu' => 'Dashboard Slide',
     ]);
 })->name('dashboardslide');
 
 Route::get('/coating', function () {
     return view('/dashboard/coating', [
-        'activeMenu' => 'Dashboard Coating'
+        'activeMenu' => 'Dashboard Coating',
     ]);
 })->name('dashboard.coating');
 
@@ -76,6 +76,6 @@ Route::get('/sealing/data', [DashboardController::class, 'sealingData'])->name('
 // Root URL ('/')
 Route::get('/', function () {
     return view('dashboard', [
-        'activeMenu' => 'Dashboard'
+        'activeMenu' => 'Dashboard',
     ]);
 });

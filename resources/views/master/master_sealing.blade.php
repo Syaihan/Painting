@@ -198,8 +198,8 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse($boms as $item)
                                 @php
-                                    $compositeId = $item->barcode_fg . '_' . $item->part_number_child_part;
-                                    $modalKey = md5($compositeId);
+                                    $bomKey = [$item->barcode_fg, $item->part_number_child_part];
+                                    $modalKey = md5($item->barcode_fg . '_' . $item->part_number_child_part);
                                 @endphp
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item->barcode_fg }}</td>
@@ -208,7 +208,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item->bom_qty }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
                                         <button type="button" onclick="openModal('editBom{{ $modalKey }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
-                                        <form action="{{ route('master.sealing.bom.destroy', $compositeId) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
+                                        <form action="{{ route('master.sealing.bom.destroy', $bomKey) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Hapus</button>
                                         </form>
@@ -222,7 +222,7 @@
                                             <h3 class="text-lg font-medium">Edit BOM</h3>
                                             <button type="button" onclick="closeModal('editBom{{ $modalKey }}')" class="text-gray-400 hover:text-gray-600">&times;</button>
                                         </div>
-                                        <form action="{{ route('master.sealing.bom.update', $compositeId) }}" method="POST" class="mt-4 space-y-4">
+                                        <form action="{{ route('master.sealing.bom.update', $bomKey) }}" method="POST" class="mt-4 space-y-4">
                                             @csrf @method('PUT')
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Barcode FG</label>
