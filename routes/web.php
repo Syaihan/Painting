@@ -18,15 +18,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 2. Route yang Membutuhkan Login (Menggunakan group middleware standar/custom, TANPA Closure)
 Route::middleware(['auth.custom'])->group(function () {
 
-    // Ubah Password (Menggunakan middleware auth.custom yang sudah ada)
-    Route::get('/password/change', [AuthController::class, 'showChangePasswordForm'])->name('password.change.form');
-    Route::post('/password/change', [AuthController::class, 'updatePassword'])->name('password.change.process');
-
     // Manajemen User & Registrasi Terpusat (Khusus Admin)
     Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
     Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
     Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update');
     Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
+
+    // Histori Session / Riwayat Login-Logout (Khusus Admin)
+    Route::get('/histori-session', [AuthController::class, 'historiSession'])->name('session.history');
 
     // MASTER SEALING
     Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {

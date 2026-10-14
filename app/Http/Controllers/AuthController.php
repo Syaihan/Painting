@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SessionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,7 @@ class AuthController extends Controller
         if (session()->has('operator_id')) {
             return redirect('/dashboard');
         }
+
         return view('auth.login');
     }
 
@@ -39,11 +41,22 @@ class AuthController extends Controller
                 ->toArray();
 
             session([
-                'operator_id'   => $operator->id,
+                'operator_id' => $operator->id,
                 'operator_name' => $operator->name,
+                'operator_username' => $operator->username,
                 'operator_role' => $operator->role_name,
-                'role_display'  => $operator->display_name,
-                'permissions'   => $permissions,
+                'role_display' => $operator->display_name,
+                'permissions' => $permissions,
+            ]);
+
+            // Catat histori login ke database
+            SessionLog::create([
+                't_log_session_history_username' => $operator->username,
+                't_log_session_history_name' => $operator->name,
+                't_log_session_history_action' => 'login',
+                't_log_session_history_ip' => $request->ip(),
+                't_log_session_history_browser' => $request->userAgent(),
+                't_log_session_history_timestamp' => now('Asia/Jakarta'),
             ]);
 
             return redirect('/')->with('success', 'Berhasil login!');
@@ -55,7 +68,20 @@ class AuthController extends Controller
     // Proses logout
     public function logout(Request $request)
     {
+        // Catat histori logout ke database (sebelum session dihapus)
+        if (session('operator_id')) {
+            SessionLog::create([
+                't_log_session_history_username' => session('operator_username', '-'),
+                't_log_session_history_name' => session('operator_name', '-'),
+                't_log_session_history_action' => 'logout',
+                't_log_session_history_ip' => $request->ip(),
+                't_log_session_history_browser' => $request->userAgent(),
+                't_log_session_history_timestamp' => now('Asia/Jakarta'),
+            ]);
+        }
+
         $request->session()->flush();
+
         return redirect('/')->with('success', 'Berhasil logout.');
     }
 
@@ -86,22 +112,22 @@ class AuthController extends Controller
 
         $request->validate([
             'username' => 'required|unique:m_users,username',
-            'name'     => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'password' => 'required|min:6|confirmed',
-            'role_id'  => 'required|exists:m_roles,id',
+            'role_id' => 'required|exists:m_roles,id',
         ], [
-            'username.unique'    => 'Username sudah digunakan, silakan pilih yang lain.',
-            'password.min'       => 'Password minimal harus 6 karakter.',
+            'username.unique' => 'Username sudah digunakan, silakan pilih yang lain.',
+            'password.min' => 'Password minimal harus 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         DB::table('m_users')->insert([
-            'username'   => $request->username,
-            'name'       => $request->name,
-            'password'   => Hash::make($request->password),
-            'role_id'    => $request->role_id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'username' => $request->username,
+            'name' => $request->name,
+            'password' => Hash::make($request->password),
+            'role_id' => $request->role_id,
+            'created_at' => now('Asia/Jakarta'),
+            'updated_at' => now('Asia/Jakarta'),
         ]);
 
         return redirect()->route('manajemen.user')->with('success', 'Akun baru berhasil dibuat!');
@@ -131,21 +157,21 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'username' => 'required|unique:m_users,username,' . $id,
-            'role_id'  => 'required|exists:m_roles,id',
+            'name' => 'required|string|max:255',
+            'username' => 'required|unique:m_users,username,'.$id,
+            'role_id' => 'required|exists:m_roles,id',
             'password' => 'nullable|min:6|confirmed',
         ], [
-            'username.unique'    => 'Username sudah digunakan oleh akun lain.',
-            'password.min'       => 'Password minimal harus 6 karakter.',
+            'username.unique' => 'Username sudah digunakan oleh akun lain.',
+            'password.min' => 'Password minimal harus 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $updateData = [
-            'name'       => $request->name,
-            'username'   => $request->username,
-            'role_id'    => $request->role_id,
-            'updated_at' => now(),
+            'name' => $request->name,
+            'username' => $request->username,
+            'role_id' => $request->role_id,
+            'updated_at' => now('Asia/Jakarta'),
         ];
 
         // Jika password diisi, update passwordnya. Jika kosong, abaikan.
@@ -156,5 +182,30 @@ class AuthController extends Controller
         DB::table('m_users')->where('id', $id)->update($updateData);
 
         return redirect()->route('manajemen.user')->with('success', 'Data user berhasil diperbarui!');
+    }
+
+    // Tampilkan Halaman Histori Session / Riwayat Login-Logout (Khusus Admin)
+    public function historiSession(Request $request)
+    {
+        if (session('operator_role') !== 'admin') {
+            return redirect('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $search = $request->input('search');
+
+        $logs = SessionLog::query()
+            ->when($search, function ($query, $keyword) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('t_log_session_history_username', 'like', "%{$keyword}%")
+                        ->orWhere('t_log_session_history_name', 'like', "%{$keyword}%");
+                });
+            })
+            ->orderBy('t_log_session_history_timestamp', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $activeMenu = 'Histori Session';
+
+        return view('auth.histori-session', compact('logs', 'search', 'activeMenu'));
     }
 }

@@ -113,6 +113,14 @@
             <span x-show="isOpen">User manajemen</span>
         </a>
         @endhasPermission
+
+        <!-- Menu: Histori Session (Khusus Admin) -->
+        @if(session('operator_role') === 'admin')
+        <a href="{{ route('session.history') }}" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition {{ request()->is('histori-session') ? 'bg-slate-800 text-white font-bold' : '' }}">
+            <span class="text-lg">🕘</span>
+            <span x-show="isOpen">Histori Session</span>
+        </a>
+        @endif
     </nav>
 
     <!-- Sidebar Footer -->
