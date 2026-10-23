@@ -16,4 +16,13 @@ class ChildPart extends Model
         'material_name',
         'child_part_qty', // Sesuai kolom baru di database
     ];
+
+    /**
+     * Relasi ke semua BOM yang menggunakan Child Part ini.
+     * Kolom foreign: m_bom.part_number_child_part -> m_child_part.part_number_child_part
+     */
+    public function boms()
+    {
+        return $this->hasMany(Bom::class, 'part_number_child_part', 'part_number_child_part');
+    }
 }

@@ -16,4 +16,13 @@ class FinishGood extends Model
         'part_number_fg',
         'fg_name',
     ];
+
+    /**
+     * Relasi ke semua BOM yang terkait dengan Finish Good ini.
+     * Kolom foreign: m_bom.barcode_fg -> m_finish_good.barcode_fg
+     */
+    public function boms()
+    {
+        return $this->hasMany(Bom::class, 'barcode_fg', 'barcode_fg');
+    }
 }

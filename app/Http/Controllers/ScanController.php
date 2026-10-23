@@ -90,12 +90,19 @@ class ScanController extends Controller
                 throw new \Exception("Barcode Finish Good [{$request->barcode}] tidak ditemukan dalam data BOM.");
             }
 
+            // Eager loading: ambil semua child part yang terkait dalam SATU query
+            // dengan lockForUpdate() agar row tetap terunci di dalam transaksi
+            // (menghindari N+1 query di dalam foreach di bawah).
+            $childPartNumbers = $boms->pluck('part_number_child_part')->unique();
+            $childParts = ChildPart::whereIn('part_number_child_part', $childPartNumbers)
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('part_number_child_part');
+
             foreach ($boms as $bom) {
                 $totalReduction = $bom->bom_qty * $request->qty;
 
-                $childPart = ChildPart::where('part_number_child_part', $bom->part_number_child_part)
-                    ->lockForUpdate()
-                    ->first();
+                $childPart = $childParts->get($bom->part_number_child_part);
 
                 if (!$childPart) {
                     throw new \Exception("Material child part [{$bom->part_number_child_part}] tidak ditemukan.");
