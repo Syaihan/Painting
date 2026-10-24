@@ -8,6 +8,7 @@ use App\Models\ChildPart;
 use App\Models\ScanLog;
 use App\Models\NgSealingLog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -38,15 +39,19 @@ class DashboardController extends Controller
      */
     private function calculateStatistics($start, $end, $currentDate)
     {
-        return [
-            'total_part'    => ChildPart::count(),
-            'safe'          => ChildPart::where('child_part_qty', '>', 499)->count(),
-            'under_minimum' => ChildPart::whereBetween('child_part_qty', [300, 499])->count(),
-            'investigate'   => ChildPart::where('child_part_qty', '<', 300)->count(),
-            'total_scan'    => ScanLog::whereBetween('t_log_scan_timestamp', [$start, $end])->count(),
-            'total_ng'      => NgSealingLog::whereBetween('t_log_ng_sealing_timestamp', [$start, $end])->sum('t_log_ng_sealing_qty'),
-            'date'          => $currentDate
-        ];
+        $cacheKey = 'dashboard_stats:' . $start . ':' . $end . ':' . $currentDate;
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($start, $end, $currentDate) {
+            return [
+                'total_part'    => ChildPart::count(),
+                'safe'          => ChildPart::where('child_part_qty', '>', 499)->count(),
+                'under_minimum' => ChildPart::whereBetween('child_part_qty', [300, 499])->count(),
+                'investigate'   => ChildPart::where('child_part_qty', '<', 300)->count(),
+                'total_scan'    => ScanLog::whereBetween('t_log_scan_timestamp', [$start, $end])->count(),
+                'total_ng'      => NgSealingLog::whereBetween('t_log_ng_sealing_timestamp', [$start, $end])->sum('t_log_ng_sealing_qty'),
+                'date'          => $currentDate
+            ];
+        });
     }
 
     /**
@@ -54,15 +59,19 @@ class DashboardController extends Controller
      */
     private function getNonSafeStocks()
     {
-        return ChildPart::where('child_part_qty', '<', 500)
-            ->orderBy('child_part_qty', 'asc')
-            ->get()
-            ->map(fn($item) => [
-                'part_number' => $item->part_number_child_part,
-                'part_name'   => $item->material_name,
-                'balance'     => $item->child_part_qty,
-                'status'      => $item->child_part_qty < 300 ? 'Investigate' : 'Under Minimum'
-            ]);
+        $cacheKey = 'dashboard_non_safe_stocks';
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () {
+            return ChildPart::where('child_part_qty', '<', 500)
+                ->orderBy('child_part_qty', 'asc')
+                ->get()
+                ->map(fn($item) => [
+                    'part_number' => $item->part_number_child_part,
+                    'part_name'   => $item->material_name,
+                    'balance'     => $item->child_part_qty,
+                    'status'      => $item->child_part_qty < 300 ? 'Investigate' : 'Under Minimum'
+                ]);
+        });
     }
 
     /**
@@ -70,18 +79,22 @@ class DashboardController extends Controller
      */
     private function getRecentTransactions()
     {
-        return ScanLog::select(
-                't_log_scan_timestamp as jam',
-                't_log_scan_fg as fq',
-                't_log_scan_fg_part_number as part_number',
-                't_log_scan_qty as qty',
-                't_log_scan_operator as operator',
-                't_log_scan_pic as pic',
-                't_log_scan_grup as grup'
-            )
-            ->orderBy('t_log_scan_timestamp', 'desc')
-            ->limit(10)
-            ->get();
+        $cacheKey = 'dashboard_recent_transactions';
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () {
+            return ScanLog::select(
+                    't_log_scan_timestamp as jam',
+                    't_log_scan_fg as fq',
+                    't_log_scan_fg_part_number as part_number',
+                    't_log_scan_qty as qty',
+                    't_log_scan_operator as operator',
+                    't_log_scan_pic as pic',
+                    't_log_scan_grup as grup'
+                )
+                ->orderBy('t_log_scan_timestamp', 'desc')
+                ->limit(10)
+                ->get();
+        });
     }
 
     /**
@@ -95,19 +108,23 @@ class DashboardController extends Controller
         $dateStart = Carbon::create($fiscalYearStart, 4, 1, 0, 0, 0, 'Asia/Jakarta'); 
         $dateEnd   = Carbon::create($fiscalYearStart + 1, 3, 31, 23, 59, 59, 'Asia/Jakarta'); 
 
-        $chartCategoryNg = NgSealingLog::select('t_log_ng_sealing_ket as category', DB::raw('COUNT(t_log_ng_sealing_qty) as total'))
-            ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
-            ->groupBy('t_log_ng_sealing_ket')
-            ->pluck('total', 'category');
+        $cacheKey = 'dashboard_fiscal_charts:' . $fiscalYearStart;
 
-        $chartNgPart = NgSealingLog::select('t_log_ng_sealing_part_name as part_name', DB::raw('SUM(t_log_ng_sealing_qty) as total'))
-            ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
-            ->groupBy('t_log_ng_sealing_part_name')
-            ->orderBy('total', 'desc')
-            ->limit(10)
-            ->pluck('total', 'part_name');
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($dateStart, $dateEnd) {
+            $chartCategoryNg = NgSealingLog::select('t_log_ng_sealing_ket as category', DB::raw('COUNT(t_log_ng_sealing_qty) as total'))
+                ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
+                ->groupBy('t_log_ng_sealing_ket')
+                ->pluck('total', 'category');
 
-        return compact('chartCategoryNg', 'chartNgPart');
+            $chartNgPart = NgSealingLog::select('t_log_ng_sealing_part_name as part_name', DB::raw('SUM(t_log_ng_sealing_qty) as total'))
+                ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
+                ->groupBy('t_log_ng_sealing_part_name')
+                ->orderBy('total', 'desc')
+                ->limit(10)
+                ->pluck('total', 'part_name');
+
+            return compact('chartCategoryNg', 'chartNgPart');
+        });
     }
 
     public function sealingData()

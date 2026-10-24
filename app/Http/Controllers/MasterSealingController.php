@@ -6,6 +6,7 @@ use App\Models\Bom;
 use App\Models\ChildPart;
 use App\Models\FinishGood;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class MasterSealingController extends Controller
 {
@@ -19,23 +20,34 @@ class MasterSealingController extends Controller
         $searchCp = $request->input('search_cp');
         $searchBom = $request->input('search_bom');
 
-        $finishGoods = FinishGood::when($searchFg, function ($q, $search) {
-            $q->where('barcode_fg', 'like', "%{$search}%")
-                ->orWhere('part_number_fg', 'like', "%{$search}%")
-                ->orWhere('fg_name', 'like', "%{$search}%");
-        })->orderby('barcode_fg', 'asc')->get();
+        // Cache key disesuaikan dengan parameter pencarian agar hasil berbeda per query
+        $finishGoodsCacheKey = 'master_sealing_fg:' . md5($searchFg ?? '');
+        $childPartsCacheKey  = 'master_sealing_cp:' . md5($searchCp ?? '');
+        $bomsCacheKey        = 'master_sealing_bom:' . md5($searchBom ?? '');
 
-        $childParts = ChildPart::when($searchCp, function ($q, $search) {
-            $q->where('part_number_child_part', 'like', "%{$search}%")
-                ->orWhere('material_name', 'like', "%{$search}%");
-        })->orderBy('material_name', 'asc')->get();
-
-        $boms = Bom::with(['finishGood', 'childPart'])
-            ->when($searchBom, function ($q, $search) {
+        $finishGoods = Cache::remember($finishGoodsCacheKey, now()->addMinutes(60), function () use ($searchFg) {
+            return FinishGood::when($searchFg, function ($q, $search) {
                 $q->where('barcode_fg', 'like', "%{$search}%")
                     ->orWhere('part_number_fg', 'like', "%{$search}%")
-                    ->orWhere('part_number_child_part', 'like', "%{$search}%");
+                    ->orWhere('fg_name', 'like', "%{$search}%");
             })->orderby('barcode_fg', 'asc')->get();
+        });
+
+        $childParts = Cache::remember($childPartsCacheKey, now()->addMinutes(60), function () use ($searchCp) {
+            return ChildPart::when($searchCp, function ($q, $search) {
+                $q->where('part_number_child_part', 'like', "%{$search}%")
+                    ->orWhere('material_name', 'like', "%{$search}%");
+            })->orderBy('material_name', 'asc')->get();
+        });
+
+        $boms = Cache::remember($bomsCacheKey, now()->addMinutes(60), function () use ($searchBom) {
+            return Bom::with(['finishGood', 'childPart'])
+                ->when($searchBom, function ($q, $search) {
+                    $q->where('barcode_fg', 'like', "%{$search}%")
+                        ->orWhere('part_number_fg', 'like', "%{$search}%")
+                        ->orWhere('part_number_child_part', 'like', "%{$search}%");
+                })->orderby('barcode_fg', 'asc')->get();
+        });
 
         return view('master.master_sealing', compact(
             'activeMenu', 'activeTab',
@@ -55,6 +67,8 @@ class MasterSealingController extends Controller
 
         FinishGood::create($request->only(['barcode_fg', 'part_number_fg', 'fg_name']));
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'fg'])->with('success', 'Data Finish Good berhasil ditambahkan!');
     }
 
@@ -67,12 +81,16 @@ class MasterSealingController extends Controller
 
         FinishGood::where('barcode_fg', $id)->firstOrFail()->update($request->only(['part_number_fg', 'fg_name']));
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'fg'])->with('success', 'Data Finish Good berhasil diperbarui!');
     }
 
     public function destroyFg($id)
     {
         FinishGood::where('barcode_fg', $id)->firstOrFail()->delete();
+
+        $this->clearMasterCache();
 
         return redirect()->route('master.sealing.index', ['tab' => 'fg'])->with('success', 'Data Finish Good berhasil dihapus!');
     }
@@ -88,6 +106,8 @@ class MasterSealingController extends Controller
 
         ChildPart::create($request->only(['part_number_child_part', 'material_name', 'child_part_qty']));
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'cp'])->with('success', 'Data Child Part berhasil ditambahkan!');
     }
 
@@ -100,12 +120,16 @@ class MasterSealingController extends Controller
 
         ChildPart::where('part_number_child_part', $id)->firstOrFail()->update($request->only(['material_name', 'child_part_qty']));
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'cp'])->with('success', 'Data Child Part berhasil diperbarui!');
     }
 
     public function destroyCp($id)
     {
         ChildPart::where('part_number_child_part', $id)->firstOrFail()->delete();
+
+        $this->clearMasterCache();
 
         return redirect()->route('master.sealing.index', ['tab' => 'cp'])->with('success', 'Data Child Part berhasil dihapus!');
     }
@@ -121,6 +145,8 @@ class MasterSealingController extends Controller
         ]);
 
         Bom::create($request->only(['barcode_fg', 'part_number_fg', 'part_number_child_part', 'bom_qty']));
+
+        $this->clearMasterCache();
 
         return redirect()->route('master.sealing.index', ['tab' => 'bom'])->with('success', 'Data BOM berhasil ditambahkan!');
     }
@@ -138,6 +164,8 @@ class MasterSealingController extends Controller
             ->where('part_number_child_part', $childPart)
             ->update($request->only(['barcode_fg', 'part_number_fg', 'part_number_child_part', 'bom_qty']));
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'bom'])->with('success', 'Data BOM berhasil diperbarui!');
     }
 
@@ -147,6 +175,16 @@ class MasterSealingController extends Controller
             ->where('part_number_child_part', $childPart)
             ->delete();
 
+        $this->clearMasterCache();
+
         return redirect()->route('master.sealing.index', ['tab' => 'bom'])->with('success', 'Data BOM berhasil dihapus!');
+    }
+
+    /**
+     * Hapus seluruh cache master sealing sehingga data akan di-refresh pada request berikutnya.
+     */
+    private function clearMasterCache()
+    {
+        Cache::flush();
     }
 }
