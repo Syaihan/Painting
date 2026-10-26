@@ -208,4 +208,78 @@ class AuthController extends Controller
 
         return view('auth.histori-session', compact('logs', 'search', 'activeMenu'));
     }
+
+    // Tampilkan Halaman Manajemen Operator (Khusus Admin)
+    public function indexOperator()
+    {
+        if (session('operator_role') !== 'admin') {
+            return redirect('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $operators = DB::table('m_operator')->orderBy('nama', 'asc')->get();
+
+        $activeMenu = 'Operator';
+
+        return view('auth.operator', compact('operators', 'activeMenu'));
+    }
+
+    // Proses simpan operator baru (Khusus Admin)
+    public function storeOperator(Request $request)
+    {
+        if (session('operator_role') !== 'admin') {
+            return redirect('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'nama' => 'required|string|max:50|unique:m_operator,nama',
+            'grup' => 'required|string|max:2',
+        ], [
+            'nama.required' => 'Nama operator wajib diisi.',
+            'nama.unique' => 'Nama operator sudah digunakan, silakan gunakan nama lain.',
+            'grup.required' => 'Grup operator wajib diisi.',
+        ]);
+
+        DB::table('m_operator')->insert([
+            'nama' => $request->nama,
+            'grup' => $request->grup,
+        ]);
+
+        return redirect()->route('operator.index')->with('success', 'Operator berhasil ditambahkan!');
+    }
+
+    // Proses update operator (Khusus Admin)
+    public function updateOperator(Request $request, $id)
+    {
+        if (session('operator_role') !== 'admin') {
+            return redirect('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        $request->validate([
+            'nama' => 'required|string|max:50|unique:m_operator,nama,'.$id,
+            'grup' => 'required|string|max:2',
+        ], [
+            'nama.required' => 'Nama operator wajib diisi.',
+            'nama.unique' => 'Nama operator sudah digunakan, silakan gunakan nama lain.',
+            'grup.required' => 'Grup operator wajib diisi.',
+        ]);
+
+        DB::table('m_operator')->where('id', $id)->update([
+            'nama' => $request->nama,
+            'grup' => $request->grup,
+        ]);
+
+        return redirect()->route('operator.index')->with('success', 'Data operator berhasil diperbarui!');
+    }
+
+    // Proses hapus operator (Khusus Admin)
+    public function deleteOperator($id)
+    {
+        if (session('operator_role') !== 'admin') {
+            return redirect('/dashboard')->with('error', 'Akses ditolak.');
+        }
+
+        DB::table('m_operator')->where('id', $id)->delete();
+
+        return redirect()->route('operator.index')->with('success', 'Operator berhasil dihapus.');
+    }
 }

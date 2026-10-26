@@ -27,6 +27,12 @@ Route::middleware(['auth.custom'])->group(function () {
     // Histori Session / Riwayat Login-Logout (Khusus Admin)
     Route::get('/histori-session', [AuthController::class, 'historiSession'])->name('session.history');
 
+    // Operator / Manajemen Operator (Khusus Admin)
+    Route::get('/operator', [AuthController::class, 'indexOperator'])->name('operator.index');
+    Route::post('/operator/store', [AuthController::class, 'storeOperator'])->name('operator.store');
+    Route::put('/operator/{id}', [AuthController::class, 'updateOperator'])->name('operator.update');
+    Route::delete('/operator/{id}', [AuthController::class, 'deleteOperator'])->name('operator.destroy');
+
     // MASTER SEALING
     Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {
         Route::get('/', [MasterSealingController::class, 'index'])->name('index');

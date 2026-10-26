@@ -21,7 +21,8 @@
          x-data="{ 
              openDashboard: {{ request()->is('dashboard*') ? 'true' : 'false' }}, 
              openScan: {{ request()->is('scan*') || request()->is('master-sealing*') ? 'true' : 'false' }}, 
-             openMaterial: {{ request()->is('material*') ? 'true' : 'false' }} 
+             openMaterial: {{ request()->is('material*') ? 'true' : 'false' }},
+              openAdmin: {{ request()->is('manajemen-user*') || request()->is('operator*') || request()->is('histori-session*') ? 'true' : 'false' }}
          }">
          
         <!-- Menu Dashboard -->
@@ -106,20 +107,42 @@
             </div>
         </div>
 
-        <!-- Menu Dropdown: Manajemen User -->
-        @hasPermission('access-manajemen-user')
-        <a href="{{ route('manajemen.user') }}" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
-            <span class="text-lg">🧑‍💼</span>
-            <span x-show="isOpen">User manajemen</span>
-        </a>
-        @endhasPermission
-
-        <!-- Menu: Histori Session (Khusus Admin) -->
+        <!-- Menu Dropdown: Administrator (Main Menu) -->
         @if(session('operator_role') === 'admin')
-        <a href="{{ route('session.history') }}" class="flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition {{ request()->is('histori-session') ? 'bg-slate-800 text-white font-bold' : '' }}">
-            <span class="text-lg">🕘</span>
-            <span x-show="isOpen">Histori Session</span>
-        </a>
+        <div>
+            <button @click="if(isOpen) { openAdmin = !openAdmin }" class="w-full flex items-center justify-between px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg">👑</span>
+                    <span x-show="isOpen">Administrator</span>
+                </div>
+                <span x-show="isOpen" class="transition-transform duration-200" :class="openAdmin ? 'rotate-180' : ''">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </span>
+            </button>
+
+            <div x-show="isOpen && openAdmin" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
+                @hasPermission('access-manajemen-user')
+                <a href="{{ route('manajemen.user') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('manajemen-user') ? 'bg-slate-800 text-white font-bold' : '' }}">
+                    <span class="text-lg">🧑‍💼</span>
+                    <span x-show="isOpen">User Managemen</span>
+                </a>
+                @endhasPermission
+                @hasPermission('access-manajemen-user')
+                <a href="{{ route('operator.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('operator') ? 'bg-slate-800 text-white font-bold' : '' }}">
+                    <span class="text-lg">👷</span>
+                    <span x-show="isOpen">Operator</span>
+                </a>
+                @endhasPermission
+                @hasPermission('access-manajemen-user')
+                <a href="{{ route('session.history') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('histori-session') ? 'bg-slate-800 text-white font-bold' : '' }}">
+                    <span class="text-lg">🕘</span>
+                    <span x-show="isOpen">Histori Session</span>
+                </a>
+                @endhasPermission
+            </div>
+        </div>
         @endif
     </nav>
 
