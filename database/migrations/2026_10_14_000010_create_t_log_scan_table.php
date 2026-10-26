@@ -22,8 +22,7 @@ return new class extends Migration
             $table->string('t_log_scan_grup', 2);
             $table->timestamp('t_log_scan_timestamp')->useCurrent();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

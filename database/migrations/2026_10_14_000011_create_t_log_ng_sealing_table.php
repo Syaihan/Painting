@@ -22,8 +22,7 @@ return new class extends Migration
             $table->string('t_log_ng_sealing_grup', 2)->nullable();
             $table->timestamp('t_log_ng_sealing_timestamp')->nullable()->useCurrent();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

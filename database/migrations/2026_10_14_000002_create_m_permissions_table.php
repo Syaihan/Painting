@@ -17,10 +17,7 @@ return new class extends Migration
             $table->string('name', 100)->unique();
             $table->text('description')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->nullable()->useCurrent()->useCurrentOnUpdate();
-
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+            $table->timestamp('updated_at')->nullable()->useCurrent();
         });
     }
 

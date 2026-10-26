@@ -18,11 +18,9 @@ return new class extends Migration
             $table->string('m_jam_produksi_ket', 50);
             $table->time('m_jam_produksi_jam_mulai');
             $table->time('m_jam_produksi_jam_selesai');
-            $table->unsignedTinyInteger('m_jam_produksi_lintas_hari')->default(0);
+            $table->tinyInteger('m_jam_produksi_lintas_hari')->default(0);
             $table->timestamp('m_jam_produksi_timestamp')->useCurrent();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
         });
     }
 

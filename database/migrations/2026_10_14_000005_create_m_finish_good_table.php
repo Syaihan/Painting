@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('part_number_fg', 15);
             $table->string('fg_name', 50);
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

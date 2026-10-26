@@ -29,8 +29,7 @@ return new class extends Migration
             $table->index('t_log_stock_adjustment_type', 'idx_type');
             $table->index('t_log_stock_adjustment_timestamp', 'idx_timestamp');
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

@@ -19,15 +19,13 @@ return new class extends Migration
             $table->string('password', 255);
             $table->unsignedBigInteger('role_id')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->nullable()->useCurrent()->useCurrentOnUpdate();
+            $table->timestamp('updated_at')->nullable()->useCurrent();
 
             $table->index('role_id', 'fk_operators_role');
             $table->foreign('role_id', 'fk_operators_role')
                 ->references('id')->on('m_roles')
                 ->nullOnDelete();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
         });
     }
 

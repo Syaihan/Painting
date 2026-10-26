@@ -27,8 +27,7 @@ return new class extends Migration
                 ->references('id')->on('m_roles')
                 ->cascadeOnDelete();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

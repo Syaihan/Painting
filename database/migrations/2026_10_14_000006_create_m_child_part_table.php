@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('material_name', 50);
             $table->integer('child_part_qty');
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

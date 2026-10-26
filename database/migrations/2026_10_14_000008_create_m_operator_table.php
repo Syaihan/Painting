@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('nama', 50)->nullable();
             $table->string('grup', 2)->nullable();
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 

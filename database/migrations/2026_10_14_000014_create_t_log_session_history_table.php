@@ -24,8 +24,7 @@ return new class extends Migration
             $table->index('t_log_session_history_username', 'idx_session_username');
             $table->index('t_log_session_history_timestamp', 'idx_session_timestamp');
 
-            $table->charset('utf8mb4');
-            $table->collation('utf8mb4_unicode_ci');
+
         });
     }
 
