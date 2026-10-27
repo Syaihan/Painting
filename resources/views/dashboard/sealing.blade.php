@@ -214,9 +214,9 @@
         </div>
     </div>
 
-    <!-- Chart.js & Plugin Datalabels CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+    <!-- Chart.js & Plugin Datalabels (Lokal) -->
+    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/chartjs-plugin-datalabels.min.js') }}"></script>
     
     <script>
         // Fungsi inisialisasi chart dengan parameter data opsional untuk update berkala
@@ -312,30 +312,74 @@
             });
         }
 
+        // ID interval untuk polling agar bisa dihentikan saat pindah halaman
+        window.pollingIntervalId = null;
+        window.chartIntervalId = null;
+
+        // Hentikan semua interval polling
+        function stopDashboardPolling() {
+            if (window.pollingIntervalId) {
+                clearInterval(window.pollingIntervalId);
+                window.pollingIntervalId = null;
+            }
+            if (window.chartIntervalId) {
+                clearInterval(window.chartIntervalId);
+                window.chartIntervalId = null;
+            }
+        }
+
+        // Cek apakah masih berada di halaman Dashboard Sealing (elemen utama ada)
+        function isSealingPage() {
+            return !!document.getElementById('stat-total-part');
+        }
+
         // Fungsi AJAX Polling setiap 5 detik
         function startDashboardPolling() {
-            setInterval(async () => {
+            // Hentikan interval lama sebelum memulai yang baru (hindari interval tumpuk)
+            stopDashboardPolling();
+
+            // Jika tidak ada di halaman sealing, jangan jalankan polling
+            if (!isSealingPage()) return;
+
+            window.pollingIntervalId = setInterval(async () => {
                 try {
                     let response = await fetch("{{ route('dashboard.sealing.data') }}");
                     if (!response.ok) return;
                     let res = await response.json();
 
-                    // 1. Update Kartu Statistik Utama
-                    document.getElementById('stat-total-part').innerText = res.stats.total_part;
-                    document.getElementById('stat-safe').innerText = res.stats.safe;
-                    document.getElementById('stat-under-minimum').innerText = res.stats.under_minimum;
-                    document.getElementById('stat-investigate').innerText = res.stats.investigate;
-                    document.getElementById('stat-total-scan').innerText = res.stats.total_scan;
-                    document.getElementById('stat-total-ng').innerText = res.stats.total_ng;
-                    
-                    document.getElementById('date-label-1').innerText = res.stats.date;
-                    document.getElementById('date-label-2').innerText = res.stats.date;
+                    // Jika sudah pindah halaman, hentikan polling
+                    if (!isSealingPage()) {
+                        stopDashboardPolling();
+                        return;
+                    }
+
+                    // 1. Update Kartu Statistik Utama (hanya jika elemen ada)
+                    const elTotalPart = document.getElementById('stat-total-part');
+                    const elSafe = document.getElementById('stat-safe');
+                    const elUnderMinimum = document.getElementById('stat-under-minimum');
+                    const elInvestigate = document.getElementById('stat-investigate');
+                    const elTotalScan = document.getElementById('stat-total-scan');
+                    const elTotalNg = document.getElementById('stat-total-ng');
+                    const elDate1 = document.getElementById('date-label-1');
+                    const elDate2 = document.getElementById('date-label-2');
+
+                    if (elTotalPart) elTotalPart.innerText = res.stats.total_part;
+                    if (elSafe) elSafe.innerText = res.stats.safe;
+                    if (elUnderMinimum) elUnderMinimum.innerText = res.stats.under_minimum;
+                    if (elInvestigate) elInvestigate.innerText = res.stats.investigate;
+                    if (elTotalScan) elTotalScan.innerText = res.stats.total_scan;
+                    if (elTotalNg) elTotalNg.innerText = res.stats.total_ng;
+
+                    if (elDate1) elDate1.innerText = res.stats.date;
+                    if (elDate2) elDate2.innerText = res.stats.date;
 
                     // 2. Update Charts dengan data baru
                     // window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
 
-                    // 3. Update Tabel History Transaksi
-                    let historyHtml = '';
+                    // 3. Update Tabel History Transaksi (hanya jika elemen ada)
+                    const elHistoryBody = document.getElementById('table-history-body');
+                    if (elHistoryBody) {
+                        let historyHtml = '';
                     if (res.history.length > 0) {
                         res.history.forEach(row => {
                             historyHtml += `
@@ -354,10 +398,13 @@
                     } else {
                         historyHtml = `<tr><td colspan="6" class="p-8 text-center text-gray-400 text-xs italic">Belum ada riwayat transaksi scan hari ini.</td></tr>`;
                     }
-                    document.getElementById('table-history-body').innerHTML = historyHtml;
+                                            elHistoryBody.innerHTML = historyHtml;
+                    }
 
-                    // 4. Update Tabel Card Stock Sealing (Non-Safe)
-                    let nonSafeHtml = '';
+                    // 4. Update Tabel Card Stock Sealing (Non-Safe) (hanya jika elemen ada)
+                    const elNonSafeBody = document.getElementById('table-nonsafe-body');
+                    if (elNonSafeBody) {
+                        let nonSafeHtml = '';
                     if (res.nonSafeStocks.length > 0) {
                         res.nonSafeStocks.forEach(stock => {
                             let badgeClass = stock.status === 'Investigate' 
@@ -379,19 +426,26 @@
                     } else {
                         nonSafeHtml = `<tr><td colspan="4" class="p-8 text-center text-gray-400 text-xs italic">Tidak ada item non-safe. Semua stok dalam kondisi aman! 🎉</td></tr>`;
                     }
-                    document.getElementById('table-nonsafe-body').innerHTML = nonSafeHtml;
+                        elNonSafeBody.innerHTML = nonSafeHtml;
+                    }
 
                 } catch (error) {
                     console.error("Gagal memperbarui data dashboard:", error);
                 }
             }, 5000); // Interval 5000ms = 5 detik
-            setInterval(async () => {
+            window.chartIntervalId = setInterval(async () => {
+                // Jika sudah pindah halaman, hentikan interval chart
+                if (!isSealingPage()) {
+                    stopDashboardPolling();
+                    return;
+                }
+
                 let response = await fetch("{{ route('dashboard.sealing.data') }}");
                 if (!response.ok) return;
                 let res = await response.json();
 
                 window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
-            },60000);
+            }, 60000);
         }
 
         // Inisialisasi awal saat halaman dimuat
@@ -406,8 +460,14 @@
         }
         
         document.addEventListener('livewire:navigated', () => {
-            window.initDashboardCharts();
-            startDashboardPolling();
+            // Hentikan polling lama saat pindah halaman
+            stopDashboardPolling();
+
+            // Hanya restart jika masih di halaman sealing
+            if (isSealingPage()) {
+                window.initDashboardCharts();
+                startDashboardPolling();
+            }
         });
     </script>
 </x-layout>
