@@ -75,7 +75,11 @@
                     <select name="t_log_ng_sealing_operator" id="operator_input" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-red-500 focus:border-red-500">
                         <option value="">Pilih Operator</option>
                         @foreach($operators as $operator)
-                            <option value="{{ $operator->nama }}">{{ $operator->nama }} (Grup {{ $operator->grup }})</option>
+                            @php
+                                $opNama = is_object($operator) ? $operator->nama : $operator;
+                                $opGrup = is_object($operator) ? $operator->grup : '-';
+                            @endphp
+                            <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
                     </select>
                 </div>

@@ -47,7 +47,11 @@
                     <select name="operator" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
-                            <option value="{{ $op->nama }}">{{ $op->nama }} (Grup {{ $op->grup }})</option>
+                            @php
+                                $opNama = is_object($op) ? $op->nama : $op;
+                                $opGrup = is_object($op) ? $op->grup : '-';
+                            @endphp
+                            <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -99,7 +103,11 @@
                     <select name="operator" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
-                            <option value="{{ $op->nama }}">{{ $op->nama }} (Grup {{ $op->grup }})</option>
+                            @php
+                                $opNama = is_object($op) ? $op->nama : $op;
+                                $opGrup = is_object($op) ? $op->grup : '-';
+                            @endphp
+                            <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -169,7 +177,10 @@
                                 <td class="py-3 px-4">{{ $item->operator }}</td>
                                 <td class="py-3 px-4">{{ $item->pic }}</td>
                                 <td class="py-3 px-4">
-                                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">Grup {{ $item->grup }}</span>
+                                    @php
+                                        $itemGrup = is_object($item) ? $item->grup : '-';
+                                    @endphp
+                                    <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">Grup {{ $itemGrup }}</span>
                                 </td>
                             </tr>
                         @empty

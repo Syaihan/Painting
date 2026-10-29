@@ -156,7 +156,10 @@
                                 <td class="p-2.5 text-left text-gray-800 font-medium">{{ $row->part_number }}</td>
                                 <td class="p-2.5 text-gray-600">{{ $row->pic }}</td>
                                 <td class="p-2.5 font-semibold text-gray-700">
-                                    <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup {{ $row->grup }}</span>
+                                    @php
+                                        $rowGrup = is_object($row) ? $row->grup : '-';
+                                    @endphp
+                                    <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup {{ $rowGrup }}</span>
                                 </td>
                                 <td class="p-2.5 font-bold text-blue-600">{{ $row->qty }}</td>
                             </tr>

@@ -72,15 +72,23 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($operators as $operator)
+                        @php
+                            $opNama = is_object($operator) ? $operator->nama : $operator;
+                            $opGrup = is_object($operator) ? $operator->grup : '-';
+                            $opId   = is_object($operator) ? $operator->id : '';
+                        @endphp
                         <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="p-3 font-medium text-gray-800">{{ $operator->nama }}</td>
-                            <td class="p-3 font-mono text-gray-600">{{ $operator->grup }}</td>
+                            <td class="p-3 font-medium text-gray-800">{{ $opNama }}</td>
+                            <td class="p-3 font-mono text-gray-600">{{ $opGrup }}</td>
                             <td class="p-3 text-center">
-                                <button @click="openEditModal({{ json_encode($operator) }})" 
+                                @php
+                                    $opJson = is_object($operator) ? json_encode($operator) : json_encode(['nama' => $operator, 'grup' => '-', 'id' => '']);
+                                @endphp
+                                <button @click="openEditModal({{ $opJson }})" 
                                         class="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded hover:bg-blue-100 transition border border-blue-200">
                                     Edit
                                 </button>
-                                <form action="{{ route('operator.destroy', $operator->id) }}" method="POST" class="inline">
+                                <form action="{{ route('operator.destroy', $opId) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" 
