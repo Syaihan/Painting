@@ -150,24 +150,39 @@
                         </thead>
                         <tbody id="table-history-body" class="divide-y divide-gray-100">
                             @forelse($history as $row)
+                            @php
+                                if (is_object($row)) {
+                                    $rowJam   = $row->jam;
+                                    $rowFq    = $row->fq;
+                                    $rowPart  = $row->part_number;
+                                    $rowPic   = $row->pic;
+                                    $rowGrup  = $row->grup;
+                                    $rowQty   = $row->qty;
+                                } elseif (is_array($row)) {
+                                    $rowJam   = $row['jam'] ?? '-';
+                                    $rowFq    = $row['fq'] ?? '-';
+                                    $rowPart  = $row['part_number'] ?? '-';
+                                    $rowPic   = $row['pic'] ?? '-';
+                                    $rowGrup  = $row['grup'] ?? '-';
+                                    $rowQty   = $row['qty'] ?? '-';
+                                } else {
+                                    $rowJam   = $row;
+                                    $rowFq    = '-';
+                                    $rowPart  = '-';
+                                    $rowPic   = '-';
+                                    $rowGrup  = '-';
+                                    $rowQty   = '-';
+                                }
+                            @endphp
                             <tr class="hover:bg-blue-50/40 transition-colors">
-                                <td class="p-2.5 font-mono text-gray-500">{{ $row->jam }}</td>
-                                <td class="p-2.5 font-mono text-left font-medium text-gray-700">{{ $row->fq }}</td>
-                                <td class="p-2.5 text-left text-gray-800 font-medium">{{ $row->part_number }}</td>
-                                <td class="p-2.5 text-gray-600">{{ $row->pic }}</td>
+                                <td class="p-2.5 font-mono text-gray-500">{{ $rowJam }}</td>
+                                <td class="p-2.5 font-mono text-left font-medium text-gray-700">{{ $rowFq }}</td>
+                                <td class="p-2.5 text-left text-gray-800 font-medium">{{ $rowPart }}</td>
+                                <td class="p-2.5 text-gray-600">{{ $rowPic }}</td>
                                 <td class="p-2.5 font-semibold text-gray-700">
-                                    @php
-                                        if (is_object($row)) {
-                                            $rowGrup = $row->grup;
-                                        } elseif (is_array($row)) {
-                                            $rowGrup = $row['grup'] ?? '-';
-                                        } else {
-                                            $rowGrup = '-';
-                                        }
-                                    @endphp
                                     <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup {{ $rowGrup }}</span>
                                 </td>
-                                <td class="p-2.5 font-bold text-blue-600">{{ $row->qty }}</td>
+                                <td class="p-2.5 font-bold text-blue-600">{{ $rowQty }}</td>
                             </tr>
                             @empty
                             <tr>

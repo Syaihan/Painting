@@ -183,25 +183,43 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 text-gray-600">
                         @forelse($history as $item)
+                            @php
+                                if (is_object($item)) {
+                                    $itemJam    = $item->jam;
+                                    $itemFq     = $item->fq;
+                                    $itemPart   = $item->part_number;
+                                    $itemQty    = $item->qty;
+                                    $itemOp     = $item->operator;
+                                    $itemPic    = $item->pic;
+                                    $itemGrup   = $item->grup;
+                                } elseif (is_array($item)) {
+                                    $itemJam    = $item['jam'] ?? '-';
+                                    $itemFq     = $item['fq'] ?? '-';
+                                    $itemPart   = $item['part_number'] ?? '-';
+                                    $itemQty    = $item['qty'] ?? '-';
+                                    $itemOp     = $item['operator'] ?? '-';
+                                    $itemPic    = $item['pic'] ?? '-';
+                                    $itemGrup   = $item['grup'] ?? '-';
+                                } else {
+                                    $itemJam    = $item;
+                                    $itemFq     = '-';
+                                    $itemPart   = '-';
+                                    $itemQty    = '-';
+                                    $itemOp     = '-';
+                                    $itemPic    = '-';
+                                    $itemGrup   = '-';
+                                }
+                            @endphp
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="py-3 px-4 font-mono text-xs">{{ $item->jam }}</td>
-                                <td class="py-3 px-4 font-medium text-gray-900">{{ $item->fq }}</td>
-                                <td class="py-3 px-4 font-medium text-gray-900">{{ $item->part_number }}</td>
+                                <td class="py-3 px-4 font-mono text-xs">{{ $itemJam }}</td>
+                                <td class="py-3 px-4 font-medium text-gray-900">{{ $itemFq }}</td>
+                                <td class="py-3 px-4 font-medium text-gray-900">{{ $itemPart }}</td>
                                 <td class="py-3 px-4">
-                                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-xs">{{ $item->qty }}</span>
+                                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-xs">{{ $itemQty }}</span>
                                 </td>
-                                <td class="py-3 px-4">{{ $item->operator }}</td>
-                                <td class="py-3 px-4">{{ $item->pic }}</td>
+                                <td class="py-3 px-4">{{ $itemOp }}</td>
+                                <td class="py-3 px-4">{{ $itemPic }}</td>
                                 <td class="py-3 px-4">
-                                    @php
-                                        if (is_object($item)) {
-                                            $itemGrup = $item->grup;
-                                        } elseif (is_array($item)) {
-                                            $itemGrup = $item['grup'] ?? '-';
-                                        } else {
-                                            $itemGrup = '-';
-                                        }
-                                    @endphp
                                     <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">Grup {{ $itemGrup }}</span>
                                 </td>
                             </tr>
