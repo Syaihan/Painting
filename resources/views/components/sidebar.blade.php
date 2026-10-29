@@ -1,6 +1,8 @@
 <aside id="sidebar" 
        :class="isOpen ? 'w-64' : 'w-20'" 
-       class="bg-slate-700 text-white flex flex-col min-h-screen shadow-xl transition-all duration-300 relative z-20">
+       class="bg-slate-700 text-white flex flex-col min-h-screen shadow-xl transition-all duration-300 relative z-20"
+       @mouseenter="isOpen = true; localStorage.setItem('sidebar_open', 'true')"
+       @mouseleave="isOpen = false; localStorage.setItem('sidebar_open', 'false')">
     
     <!-- Brand / Logo Title -->
     <div class="p-1 bg-slate-800 text-center font-black text-lg tracking-wider border-b border-slate-600 flex items-center justify-center overflow-hidden">

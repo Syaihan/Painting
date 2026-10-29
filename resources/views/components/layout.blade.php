@@ -20,7 +20,7 @@
     <!-- Kontainer Utama dengan Alpine.js State untuk Sidebar -->
     <div class="flex h-screen overflow-hidden" 
          x-data="{ 
-             isOpen: localStorage.getItem('sidebar_open') !== 'false',
+             isOpen: localStorage.getItem('sidebar_open') === 'true',
              toggleSidebar() {
                  this.isOpen = !this.isOpen;
                  localStorage.setItem('sidebar_open', this.isOpen);

@@ -44,7 +44,7 @@
                 <!-- Pilihan Operator -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Pilih Operator</label>
-                    <select name="operator" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    <select name="operator" id="operatorSelectReguler" required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
                             @php
@@ -59,7 +59,7 @@
                                     $opGrup = '-';
                                 }
                             @endphp
-                            <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
+                            <option value="{{ $opNama }}" {{ old('operator') == $opNama ? 'selected' : '' }}>{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -67,7 +67,7 @@
                 <!-- Input Barcode -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Scan Barcode
-                        <input type="text" name="barcode" placeholder="Scan atau ketik barcode..." required class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+                        <input type="text" name="barcode" placeholder="Scan atau ketik barcode..." required autofocus class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         <input type="hidden" name="qty" value="60">
                     </label>
                 </div>
@@ -108,7 +108,7 @@
                 <!-- Pilihan Operator -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Pilih Operator</label>
-                    <select name="operator" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
+                    <select name="operator" id="operatorSelectPartial" required class="w-full rounded-lg border-gray-300 focus:border-amber-500 focus:ring-amber-500 text-sm">
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
                             @php
@@ -123,7 +123,7 @@
                                     $opGrup = '-';
                                 }
                             @endphp
-                            <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
+                            <option value="{{ $opNama }}" {{ old('operator') == $opNama ? 'selected' : '' }}>{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -234,4 +234,45 @@
         </div>
 
     </div>
+<script>
+    // Autofocus tetap terkunci pada kolom barcode saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', function () {
+        var barcodeInput = document.querySelector('input[name="barcode"]');
+        if (barcodeInput) {
+            barcodeInput.focus();
+        }
+
+        // Hapus operator terakhir dari localStorage saat pertama kali memasuki halaman scan console
+        // sehingga operator tidak terisi otomatis saat datang dari dashboard / menu lain
+        localStorage.removeItem('last_selected_operator');
+
+        var operatorSelects = document.querySelectorAll('select[name="operator"]');
+        operatorSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                if (this.value) {
+                    // Simpan operator saat user memilih / mengubah operator
+                    localStorage.setItem('last_selected_operator', this.value);
+                }
+            });
+        });
+    });
+
+    // Jika ada pesan error (validasi gagal) atau setelah scan (Livewire render ulang),
+    // kembali lagi ke input barcode dan pulihkan operator yang terakhir dipilih
+    document.addEventListener('livewire:load', function () {
+        var barcodeInput = document.querySelector('input[name="barcode"]');
+        if (barcodeInput) {
+            barcodeInput.focus();
+        }
+
+        // Pulihkan operator dari localStorage agar tidak hilang setelah scan
+        var savedOperator = localStorage.getItem('last_selected_operator');
+        var operatorSelects = document.querySelectorAll('select[name="operator"]');
+        operatorSelects.forEach(function(select) {
+            if (savedOperator) {
+                select.value = savedOperator;
+            }
+        });
+    });
+</script>
 </x-layout>
