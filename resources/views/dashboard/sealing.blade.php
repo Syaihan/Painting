@@ -482,7 +482,8 @@
                     return;
                 }
 
-                let response = await fetch("{{ route('dashboard.sealing.data') }}");
+                // Tambahkan timestamp untuk mencegah browser cache
+                let response = await fetch("{{ route('dashboard.sealing.data') }}?" + new Date().getTime());
                 if (!response.ok) return;
                 let res = await response.json();
 

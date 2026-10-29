@@ -132,23 +132,8 @@ class ScanController extends Controller
 
             DB::commit();
 
-            // Clear semua cache dashboard agar otomatis update saat scan baru diinput
-            $now = Carbon::now('Asia/Jakarta');
-            $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-
-            // Clear chart cache
-            Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
-
-            // Clear non-safe stocks dan recent transactions
-            Cache::forget('dashboard_non_safe_stocks');
-            Cache::forget('dashboard_recent_transactions');
-
-            // Clear stats cache (format kunci sama dengan calculateStatistics())
-            $shiftData = getActiveShiftData();
-            $start = $shiftData['start_time'];
-            $end   = $shiftData['end_time'];
-            $currentDate = strtoupper($now->format('d F Y'));
-            Cache::forget('dashboard_stats:' . $start . ':' . $end . ':' . $currentDate);
+            // Clear semua cache dashboard agar otomatis update setelah scan
+            app(\App\Http\Controllers\DashboardController::class)->clearDashboardCache();
 
             return redirect()->route('scan.console')->with('success', 'Scan berhasil dieksekusi dan stok berhasil dipotong!');
 
@@ -243,17 +228,8 @@ class ScanController extends Controller
 
             DB::commit();
 
-            // Clear semua cache dashboard agar otomatis update saat stock in baru diinput
-            $now = Carbon::now('Asia/Jakarta');
-            $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-            Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
-            Cache::forget('dashboard_non_safe_stocks');
-            Cache::forget('dashboard_recent_transactions');
-            $shiftData = getActiveShiftData();
-            $start = $shiftData['start_time'];
-            $end   = $shiftData['end_time'];
-            $currentDate = strtoupper($now->format('d F Y'));
-            Cache::forget('dashboard_stats:' . $start . ':' . $end . ':' . $currentDate);
+            // Clear semua cache dashboard agar otomatis update setelah stock in
+            app(\App\Http\Controllers\DashboardController::class)->clearDashboardCache();
 
             return redirect()->route('scan.stock_in.form')->with('success', 'Stok masuk berhasil disimpan dan stok material bertambah!');
 
@@ -328,17 +304,8 @@ class ScanController extends Controller
 
             DB::commit();
 
-            // Clear semua cache dashboard agar otomatis update saat adjustment baru diinput
-            $now = Carbon::now('Asia/Jakarta');
-            $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-            Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
-            Cache::forget('dashboard_non_safe_stocks');
-            Cache::forget('dashboard_recent_transactions');
-            $shiftData = getActiveShiftData();
-            $start = $shiftData['start_time'];
-            $end   = $shiftData['end_time'];
-            $currentDate = strtoupper($now->format('d F Y'));
-            Cache::forget('dashboard_stats:' . $start . ':' . $end . ':' . $currentDate);
+            // Clear semua cache dashboard agar otomatis update setelah adjustment
+            app(\App\Http\Controllers\DashboardController::class)->clearDashboardCache();
 
             return redirect()->route('scan.stock_card')->with('success', "Stock adjustment berhasil! Stok disesuaikan menjadi {$stockAfter} pcs (Selisih {$type} {$qtyAdjustment} pcs).");
 
@@ -400,23 +367,8 @@ class ScanController extends Controller
 
             DB::commit();
 
-            // Clear semua cache dashboard agar otomatis update saat data NG baru diinput
-            $now = Carbon::now('Asia/Jakarta');
-            $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
-
-            // Clear chart cache
-            Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
-
-            // Clear non-safe stocks dan recent transactions
-            Cache::forget('dashboard_non_safe_stocks');
-            Cache::forget('dashboard_recent_transactions');
-
-            // Clear stats cache (format kunci sama dengan calculateStatistics())
-            $shiftData = getActiveShiftData();
-            $start = $shiftData['start_time'];
-            $end   = $shiftData['end_time'];
-            $currentDate = strtoupper($now->format('d F Y'));
-            Cache::forget('dashboard_stats:' . $start . ':' . $end . ':' . $currentDate);
+            // Clear semua cache dashboard agar otomatis update setelah NG
+            app(\App\Http\Controllers\DashboardController::class)->clearDashboardCache();
 
             return redirect()->back()->with('success', 'Data NG berhasil disimpan dan stok child part otomatis terpotong.');
             

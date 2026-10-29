@@ -139,10 +139,39 @@ class DashboardController extends Controller
         $end       = $shiftData['end_time'];
         $currentDate = strtoupper(Carbon::now('Asia/Jakarta')->format('d F Y'));
 
-        return response()->json(array_merge([
+        $response = response()->json(array_merge([
             'stats'         => $this->calculateStatistics($start, $end, $currentDate),
             'nonSafeStocks' => $this->getNonSafeStocks(),
             'history'       => $this->getRecentTransactions(),
         ], $this->getFiscalYearCharts()));
+
+        // Disable semua cache browser agar selalu mengambil data terbaru
+        return $response->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                        ->header('Pragma', 'no-cache')
+                        ->header('Expires', '0');
+    }
+
+    /**
+     * Clear semua cache dashboard agar data otomatis update setelah transaksi
+     * (ubah qty child_part, scan, NG, stock in, adjustment, dll).
+     */
+    public function clearDashboardCache()
+    {
+        $now = Carbon::now('Asia/Jakarta');
+        $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
+
+        // Clear chart cache
+        Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
+
+        // Clear non-safe stocks dan recent transactions
+        Cache::forget('dashboard_non_safe_stocks');
+        Cache::forget('dashboard_recent_transactions');
+
+        // Clear stats cache (format kunci sama dengan calculateStatistics())
+        $shiftData = getActiveShiftData();
+        $start = $shiftData['start_time'];
+        $end   = $shiftData['end_time'];
+        $currentDate = strtoupper($now->format('d F Y'));
+        Cache::forget('dashboard_stats:' . $start . ':' . $end . ':' . $currentDate);
     }
 }
