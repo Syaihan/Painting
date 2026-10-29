@@ -48,13 +48,16 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse($finishGoods as $item)
+                                @php
+                                    $item = is_object($item) ? (array) $item : $item;
+                                @endphp
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->barcode_fg }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->part_number_fg }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->fg_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['barcode_fg'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['part_number_fg'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['fg_name'] }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
-                                        <button type="button" onclick="openModal('editFg{{ $item->barcode_fg }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
-                                        <form action="{{ route('master.sealing.fg.destroy', $item->barcode_fg) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
+                                        <button type="button" onclick="openModal('editFg{{ $item['barcode_fg'] }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
+                                        <form action="{{ route('master.sealing.fg.destroy', $item['barcode_fg']) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Hapus</button>
                                         </form>
@@ -62,28 +65,28 @@
                                 </tr>
 
                                 <!-- Modal Edit FG (Dipindah keluar dari baris tabel agar struktur HTML valid) -->
-                                <div id="editFg{{ $item->barcode_fg }}" class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm hidden">
+                                <div id="editFg{{ $item['barcode_fg'] }}" class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm hidden">
                                     <div class="bg-white rounded-lg max-w-lg w-full p-6">
                                         <div class="flex justify-between items-center pb-3 border-b">
                                             <h3 class="text-lg font-medium">Edit Finish Good</h3>
-                                            <button type="button" onclick="closeModal('editFg{{ $item->barcode_fg }}')" class="text-gray-400 hover:text-gray-600">&times;</button>
+                                            <button type="button" onclick="closeModal('editFg{{ $item['barcode_fg'] }}')" class="text-gray-400 hover:text-gray-600">&times;</button>
                                         </div>
-                                        <form action="{{ route('master.sealing.fg.update', $item->barcode_fg) }}" method="POST" class="mt-4 space-y-4">
+                                        <form action="{{ route('master.sealing.fg.update', $item['barcode_fg']) }}" method="POST" class="mt-4 space-y-4">
                                             @csrf @method('PUT')
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Barcode FG</label>
-                                                <input type="text" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 border p-2 text-sm" value="{{ $item->barcode_fg }}" disabled>
+                                                <input type="text" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 border p-2 text-sm" value="{{ $item['barcode_fg'] }}" disabled>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Part Number FG</label>
-                                                <input type="text" name="part_number_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->part_number_fg }}" required>
+                                                <input type="text" name="part_number_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['part_number_fg'] }}" required>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Nama FG</label>
-                                                <input type="text" name="fg_name" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->fg_name }}" required>
+                                                <input type="text" name="fg_name" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['fg_name'] }}" required>
                                             </div>
                                             <div class="flex justify-end space-x-2 pt-4">
-                                                <button type="button" onclick="closeModal('editFg{{ $item->barcode_fg }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
+                                                <button type="button" onclick="closeModal('editFg{{ $item['barcode_fg'] }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
                                                 <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm">Simpan</button>
                                             </div>
                                         </form>
@@ -122,13 +125,16 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse($childParts as $item)
+                                @php
+                                    $item = is_object($item) ? (array) $item : $item;
+                                @endphp
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->part_number_child_part }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->material_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->child_part_qty }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['part_number_child_part'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['material_name'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['child_part_qty'] }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
-                                        <button type="button" onclick="openModal('editCp{{ $item->part_number_child_part }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
-                                        <form action="{{ route('master.sealing.cp.destroy', $item->part_number_child_part) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
+                                        <button type="button" onclick="openModal('editCp{{ $item['part_number_child_part'] }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
+                                        <form action="{{ route('master.sealing.cp.destroy', $item['part_number_child_part']) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">Hapus</button>
                                         </form>
@@ -136,25 +142,25 @@
                                 </tr>
 
                                 <!-- Modal Edit CP -->
-                                <div id="editCp{{ $item->part_number_child_part }}" class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm hidden">
+                                <div id="editCp{{ $item['part_number_child_part'] }}" class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm hidden">
                                     <div class="bg-white rounded-lg max-w-lg w-full p-6">
                                         <div class="flex justify-between items-center pb-3 border-b">
                                             <h3 class="text-lg font-medium">Edit Child Part</h3>
-                                            <button type="button" onclick="closeModal('editCp{{ $item->part_number_child_part }}')" class="text-gray-400 hover:text-gray-600">&times;</button>
+                                            <button type="button" onclick="closeModal('editCp{{ $item['part_number_child_part'] }}')" class="text-gray-400 hover:text-gray-600">&times;</button>
                                         </div>
-                                        <form action="{{ route('master.sealing.cp.update', $item->part_number_child_part) }}" method="POST" class="mt-4 space-y-4">
+                                        <form action="{{ route('master.sealing.cp.update', $item['part_number_child_part']) }}" method="POST" class="mt-4 space-y-4">
                                             @csrf @method('PUT')
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Part Number</label>
-                                                <input type="text" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 border p-2 text-sm" value="{{ $item->part_number_child_part }}" disabled>
+                                                <input type="text" class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 border p-2 text-sm" value="{{ $item['part_number_child_part'] }}" disabled>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Material Name</label>
-                                                <input type="text" name="material_name" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->material_name }}" required>
+                                                <input type="text" name="material_name" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['material_name'] }}" required>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Qty Stok</label>
-                                                <input type="number" name="child_part_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->child_part_qty }}" min="0" required>
+                                                <input type="number" name="child_part_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['child_part_qty'] }}" min="0" required>
                                             </div>
                                             <div class="flex justify-end space-x-2 pt-4">
                                                 <button type="button" onclick="closeModal('editCp{{ $item->part_number_child_part }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
@@ -198,14 +204,15 @@
                             <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse($boms as $item)
                                 @php
-                                    $bomKey = [$item->barcode_fg, $item->part_number_child_part];
-                                    $modalKey = md5($item->barcode_fg . '_' . $item->part_number_child_part);
+                                    $item = is_object($item) ? (array) $item : $item;
+                                    $bomKey = [$item['barcode_fg'], $item['part_number_child_part']];
+                                    $modalKey = md5($item['barcode_fg'] . '_' . $item['part_number_child_part']);
                                 @endphp
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->barcode_fg }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->part_number_fg }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->part_number_child_part }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item->bom_qty }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['barcode_fg'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['part_number_fg'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['part_number_child_part'] }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['bom_qty'] }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
                                         <button type="button" onclick="openModal('editBom{{ $modalKey }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
                                         <form action="{{ route('master.sealing.bom.destroy', $bomKey) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
@@ -226,19 +233,19 @@
                                             @csrf @method('PUT')
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Barcode FG</label>
-                                                <input type="text" name="barcode_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->barcode_fg }}" required>
+                                                <input type="text" name="barcode_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['barcode_fg'] }}" required>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Part Number FG</label>
-                                                <input type="text" name="part_number_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->part_number_fg }}" required>
+                                                <input type="text" name="part_number_fg" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['part_number_fg'] }}" required>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Part Child Part</label>
-                                                <input type="text" name="part_number_child_part" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->part_number_child_part }}" required>
+                                                <input type="text" name="part_number_child_part" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['part_number_child_part'] }}" required>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">BOM Qty</label>
-                                                <input type="number" name="bom_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item->bom_qty }}" min="1" required>
+                                                <input type="number" name="bom_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['bom_qty'] }}" min="1" required>
                                             </div>
                                             <div class="flex justify-end space-x-2 pt-4">
                                                 <button type="button" onclick="closeModal('editBom{{ $modalKey }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>

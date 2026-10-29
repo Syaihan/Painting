@@ -112,7 +112,7 @@ class DashboardController extends Controller
 
         $cacheKey = 'dashboard_fiscal_charts:' . $fiscalYearStart;
 
-        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($dateStart, $dateEnd) {
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($dateStart, $dateEnd) {
             $chartCategoryNg = NgSealingLog::select('t_log_ng_sealing_ket as category', DB::raw('COUNT(t_log_ng_sealing_qty) as total'))
                 ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
                 ->groupBy('t_log_ng_sealing_ket')
