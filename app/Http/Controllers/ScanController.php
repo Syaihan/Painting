@@ -357,6 +357,14 @@ class ScanController extends Controller
             ]);
 
             DB::commit();
+
+            // Clear cache chart & statistik agar otomatis update saat data NG baru diinput
+            $now = Carbon::now('Asia/Jakarta');
+            $fiscalYearStart = $now->month >= 4 ? $now->year : $now->year - 1;
+            Cache::forget('dashboard_fiscal_charts:' . $fiscalYearStart);
+            Cache::forget('dashboard_non_safe_stocks');
+            Cache::forget('dashboard_recent_transactions');
+
             return redirect()->back()->with('success', 'Data NG berhasil disimpan dan stok child part otomatis terpotong.');
             
         } catch (\Exception $e) {
