@@ -214,13 +214,31 @@
                         </thead>
                         <tbody id="table-nonsafe-body" class="divide-y divide-gray-100">
                             @forelse($nonSafeStocks as $stock)
+                            @php
+                                if (is_array($stock)) {
+                                    $stockPart   = $stock['part_number'] ?? '-';
+                                    $stockName   = $stock['part_name'] ?? '-';
+                                    $stockBalance = $stock['balance'] ?? '-';
+                                    $stockStatus  = $stock['status'] ?? '-';
+                                } elseif (is_object($stock)) {
+                                    $stockPart   = $stock->part_number ?? '-';
+                                    $stockName   = $stock->part_name ?? '-';
+                                    $stockBalance = $stock->balance ?? '-';
+                                    $stockStatus  = $stock->status ?? '-';
+                                } else {
+                                    $stockPart   = $stock;
+                                    $stockName   = '-';
+                                    $stockBalance = '-';
+                                    $stockStatus  = '-';
+                                }
+                            @endphp
                             <tr class="text-center hover:bg-rose-50/30 transition-colors">
-                                <td class="p-2.5 text-left font-mono text-[10px] text-gray-700 font-medium">{{ $stock['part_number'] }}</td>
-                                <td class="p-2.5 text-left text-[10px] text-gray-600">{{ $stock['part_name'] }}</td>
-                                <td class="p-2.5 font-bold text-gray-800">{{ $stock['balance'] }}</td>
+                                <td class="p-2.5 text-left font-mono text-[10px] text-gray-700 font-medium">{{ $stockPart }}</td>
+                                <td class="p-2.5 text-left text-[10px] text-gray-600">{{ $stockName }}</td>
+                                <td class="p-2.5 font-bold text-gray-800">{{ $stockBalance }}</td>
                                 <td class="p-2.5">
-                                    <span class="{{ $stock['status'] == 'Investigate' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} px-2 py-0.5 rounded-md text-[10px] font-semibold inline-block">
-                                        {{ $stock['status'] }}
+                                    <span class="{{ $stockStatus == 'Investigate' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} px-2 py-0.5 rounded-md text-[10px] font-semibold inline-block">
+                                        {{ $stockStatus }}
                                     </span>
                                 </td>
                             </tr>
