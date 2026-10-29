@@ -70,7 +70,8 @@ class DashboardController extends Controller
                     'part_name'   => $item->material_name,
                     'balance'     => $item->child_part_qty,
                     'status'      => $item->child_part_qty < 300 ? 'Investigate' : 'Under Minimum'
-                ]);
+                ])
+                ->toArray();
         });
     }
 
@@ -93,7 +94,8 @@ class DashboardController extends Controller
                 )
                 ->orderBy('t_log_scan_timestamp', 'desc')
                 ->limit(10)
-                ->get();
+                ->get()
+                ->toArray();
         });
     }
 
@@ -114,14 +116,16 @@ class DashboardController extends Controller
             $chartCategoryNg = NgSealingLog::select('t_log_ng_sealing_ket as category', DB::raw('COUNT(t_log_ng_sealing_qty) as total'))
                 ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
                 ->groupBy('t_log_ng_sealing_ket')
-                ->pluck('total', 'category');
+                ->pluck('total', 'category')
+                ->toArray();
 
             $chartNgPart = NgSealingLog::select('t_log_ng_sealing_part_name as part_name', DB::raw('SUM(t_log_ng_sealing_qty) as total'))
                 ->whereBetween('t_log_ng_sealing_timestamp', [$dateStart, $dateEnd])
                 ->groupBy('t_log_ng_sealing_part_name')
                 ->orderBy('total', 'desc')
                 ->limit(10)
-                ->pluck('total', 'part_name');
+                ->pluck('total', 'part_name')
+                ->toArray();
 
             return compact('chartCategoryNg', 'chartNgPart');
         });

@@ -19,18 +19,18 @@ class ScanController extends Controller
      */
     private function getOperatorsByRole()
     {
-        $roleId = session('operator_id'); 
+        $role = session('operator_role'); // 'A', 'B', atau null
 
-        $cacheKey = 'operators_role_' . $roleId;
+        $cacheKey = 'operators_role_' . $role;
 
-        return Cache::remember($cacheKey, now()->addHours(24), function () use ($roleId) {
-            if ($roleId == 3) {
-                return Operator::where('grup', 'A')->get();
-            } elseif ($roleId == 4) {
-                return Operator::where('grup', 'B')->get();
+        return Cache::remember($cacheKey, now()->addHours(24), function () use ($role) {
+            if ($role === 'A') {
+                return Operator::where('grup', 'A')->get()->toArray();
+            } elseif ($role === 'B') {
+                return Operator::where('grup', 'B')->get()->toArray();
             }
 
-            return Operator::all();
+            return Operator::all()->toArray();
         });
     }
 

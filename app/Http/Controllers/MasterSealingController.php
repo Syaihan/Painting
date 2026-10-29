@@ -30,14 +30,14 @@ class MasterSealingController extends Controller
                 $q->where('barcode_fg', 'like', "%{$search}%")
                     ->orWhere('part_number_fg', 'like', "%{$search}%")
                     ->orWhere('fg_name', 'like', "%{$search}%");
-            })->orderby('barcode_fg', 'asc')->get();
+            })->orderby('barcode_fg', 'asc')->get()->toArray();
         });
 
         $childParts = Cache::remember($childPartsCacheKey, now()->addMinutes(60), function () use ($searchCp) {
             return ChildPart::when($searchCp, function ($q, $search) {
                 $q->where('part_number_child_part', 'like', "%{$search}%")
                     ->orWhere('material_name', 'like', "%{$search}%");
-            })->orderBy('material_name', 'asc')->get();
+            })->orderBy('material_name', 'asc')->get()->toArray();
         });
 
         $boms = Cache::remember($bomsCacheKey, now()->addMinutes(60), function () use ($searchBom) {
@@ -46,7 +46,7 @@ class MasterSealingController extends Controller
                     $q->where('barcode_fg', 'like', "%{$search}%")
                         ->orWhere('part_number_fg', 'like', "%{$search}%")
                         ->orWhere('part_number_child_part', 'like', "%{$search}%");
-                })->orderby('barcode_fg', 'asc')->get();
+                })->orderby('barcode_fg', 'asc')->get()->toArray();
         });
 
         return view('master.master_sealing', compact(
