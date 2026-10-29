@@ -163,7 +163,7 @@
                                                 <input type="number" name="child_part_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['child_part_qty'] }}" min="0" required>
                                             </div>
                                             <div class="flex justify-end space-x-2 pt-4">
-                                                <button type="button" onclick="closeModal('editCp{{ $item->part_number_child_part }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
+                                                <button type="button" onclick="closeModal('editCp{{ $item['part_number_child_part'] }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
                                                 <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm">Simpan</button>
                                             </div>
                                         </form>
