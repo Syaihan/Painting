@@ -76,8 +76,16 @@
                         <option value="">Pilih Operator</option>
                         @foreach($operators as $operator)
                             @php
-                                $opNama = is_object($operator) ? $operator->nama : $operator;
-                                $opGrup = is_object($operator) ? $operator->grup : '-';
+                                if (is_object($operator)) {
+                                    $opNama = $operator->nama;
+                                    $opGrup = $operator->grup;
+                                } elseif (is_array($operator)) {
+                                    $opNama = $operator['nama'] ?? '-';
+                                    $opGrup = $operator['grup'] ?? '-';
+                                } else {
+                                    $opNama = $operator;
+                                    $opGrup = '-';
+                                }
                             @endphp
                             <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach

@@ -48,8 +48,16 @@
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
                             @php
-                                $opNama = is_object($op) ? $op->nama : $op;
-                                $opGrup = is_object($op) ? $op->grup : '-';
+                                if (is_object($op)) {
+                                    $opNama = $op->nama;
+                                    $opGrup = $op->grup;
+                                } elseif (is_array($op)) {
+                                    $opNama = $op['nama'] ?? '-';
+                                    $opGrup = $op['grup'] ?? '-';
+                                } else {
+                                    $opNama = $op;
+                                    $opGrup = '-';
+                                }
                             @endphp
                             <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
@@ -104,8 +112,16 @@
                         <option value="">-- Pilih Operator --</option>
                         @foreach($operators as $op)
                             @php
-                                $opNama = is_object($op) ? $op->nama : $op;
-                                $opGrup = is_object($op) ? $op->grup : '-';
+                                if (is_object($op)) {
+                                    $opNama = $op->nama;
+                                    $opGrup = $op->grup;
+                                } elseif (is_array($op)) {
+                                    $opNama = $op['nama'] ?? '-';
+                                    $opGrup = $op['grup'] ?? '-';
+                                } else {
+                                    $opNama = $op;
+                                    $opGrup = '-';
+                                }
                             @endphp
                             <option value="{{ $opNama }}">{{ $opNama }} (Grup {{ $opGrup }})</option>
                         @endforeach
@@ -178,7 +194,13 @@
                                 <td class="py-3 px-4">{{ $item->pic }}</td>
                                 <td class="py-3 px-4">
                                     @php
-                                        $itemGrup = is_object($item) ? $item->grup : '-';
+                                        if (is_object($item)) {
+                                            $itemGrup = $item->grup;
+                                        } elseif (is_array($item)) {
+                                            $itemGrup = $item['grup'] ?? '-';
+                                        } else {
+                                            $itemGrup = '-';
+                                        }
                                     @endphp
                                     <span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">Grup {{ $itemGrup }}</span>
                                 </td>

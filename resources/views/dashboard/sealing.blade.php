@@ -157,7 +157,13 @@
                                 <td class="p-2.5 text-gray-600">{{ $row->pic }}</td>
                                 <td class="p-2.5 font-semibold text-gray-700">
                                     @php
-                                        $rowGrup = is_object($row) ? $row->grup : '-';
+                                        if (is_object($row)) {
+                                            $rowGrup = $row->grup;
+                                        } elseif (is_array($row)) {
+                                            $rowGrup = $row['grup'] ?? '-';
+                                        } else {
+                                            $rowGrup = '-';
+                                        }
                                     @endphp
                                     <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup {{ $rowGrup }}</span>
                                 </td>
