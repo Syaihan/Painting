@@ -12,7 +12,7 @@ RUN apt-get update \
         zip \
         unzip \
         libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip json \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js LTS (termasuk npm) untuk Vite / Tailwind
