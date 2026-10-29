@@ -1,23 +1,26 @@
 FROM php:8.3-fpm
 
 # Install system dependencies & PHP extensions untuk Laravel + PostgreSQL
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    gnupg \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    libpq-dev \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        curl \
+        libpng-dev \
+        libonig-dev \
+        libxml2-dev \
+        libzip-dev \
+        zip \
+        unzip \
+        libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip json \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js LTS (termasuk npm) untuk Vite / Tailwind
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
