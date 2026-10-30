@@ -6,6 +6,7 @@ use App\Models\SessionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -244,6 +245,8 @@ class AuthController extends Controller
             'grup' => $request->grup,
         ]);
 
+        $this->clearOperatorCache();
+
         return redirect()->route('operator.index')->with('success', 'Operator berhasil ditambahkan!');
     }
 
@@ -268,6 +271,8 @@ class AuthController extends Controller
             'grup' => $request->grup,
         ]);
 
+        $this->clearOperatorCache();
+
         return redirect()->route('operator.index')->with('success', 'Data operator berhasil diperbarui!');
     }
 
@@ -280,6 +285,19 @@ class AuthController extends Controller
 
         DB::table('m_operator')->where('id', $id)->delete();
 
+        $this->clearOperatorCache();
+
         return redirect()->route('operator.index')->with('success', 'Operator berhasil dihapus.');
+    }
+
+    /**
+     * Hapus cache daftar operator agar data operator terbaru
+     * langsung muncul pada dropdown menu scan (nglog / console).
+     */
+    private function clearOperatorCache()
+    {
+        Cache::forget('operators_role_A');
+        Cache::forget('operators_role_B');
+        Cache::forget('operators_role_');
     }
 }

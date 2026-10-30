@@ -51,8 +51,8 @@
         <div>
             <button @click="if(isOpen) { openScan = !openScan }" class="w-full flex items-center justify-between px-3 py-2.5 rounded hover:bg-slate-800 text-white font-semibold transition">
                 <div class="flex items-center gap-3">
-                    <span class="text-lg">📷</span>
-                    <span x-show="isOpen">Scan</span>
+                    <span class="text-lg">🔧</span>
+                    <span x-show="isOpen">Sealing</span>
                 </div>
                 <span x-show="isOpen" class="transition-transform duration-200" :class="openScan ? 'rotate-180' : ''">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
