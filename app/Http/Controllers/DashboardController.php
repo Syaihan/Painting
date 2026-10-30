@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\ChildPart;
 use App\Models\ScanLog;
 use App\Models\NgSealingLog;
+use App\Models\SealingSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
@@ -39,14 +40,15 @@ class DashboardController extends Controller
      */
     private function calculateStatistics($start, $end, $currentDate)
     {
-        $cacheKey = 'dashboard_stats:' . $start . ':' . $end . ':' . $currentDate;
+        $minLimit = SealingSetting::getSettings()->min_limit;
+        $cacheKey = 'dashboard_stats:' . $start . ':' . $end . ':' . $currentDate . ':' . $minLimit;
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($start, $end, $currentDate) {
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($start, $end, $currentDate, $minLimit) {
+
             return [
                 'total_part'    => ChildPart::count(),
-                'safe'          => ChildPart::where('child_part_qty', '>', 499)->count(),
-                'under_minimum' => ChildPart::whereBetween('child_part_qty', [300, 499])->count(),
-                'investigate'   => ChildPart::where('child_part_qty', '<', 300)->count(),
+                'safe'          => ChildPart::where('child_part_qty', '>', $minLimit)->count(),
+                'under_minimum' => ChildPart::where('child_part_qty', '<', $minLimit)->count(),
                 'total_scan'    => ScanLog::whereBetween('t_log_scan_timestamp', [$start, $end])->count(),
                 'total_ng'      => NgSealingLog::whereBetween('t_log_ng_sealing_timestamp', [$start, $end])->sum('t_log_ng_sealing_qty'),
                 'date'          => $currentDate
@@ -59,17 +61,18 @@ class DashboardController extends Controller
      */
     private function getNonSafeStocks()
     {
-        $cacheKey = 'dashboard_non_safe_stocks';
+        $minLimit = SealingSetting::getSettings()->min_limit;
+        $cacheKey = 'dashboard_non_safe_stocks:' . $minLimit;
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () {
-            return ChildPart::where('child_part_qty', '<', 500)
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($minLimit) {
+            return ChildPart::where('child_part_qty', '<', $minLimit)
                 ->orderBy('child_part_qty', 'asc')
                 ->get()
                 ->map(fn($item) => [
                     'part_number' => $item->part_number_child_part,
                     'part_name'   => $item->material_name,
                     'balance'     => $item->child_part_qty,
-                    'status'      => $item->child_part_qty < 300 ? 'Investigate' : 'Under Minimum'
+                    'status'      => 'Under Minimum'
                 ])
                 ->toArray();
         });

@@ -8,6 +8,7 @@ use App\Models\Operator;
 use App\Models\Bom;
 use App\Models\ChildPart;
 use App\Models\NgSealingLog;
+use App\Models\SealingSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -49,6 +50,7 @@ class ScanController extends Controller
     {
         $activeMenu = 'Scan Console';
         $operators  = $this->getOperatorsByRole();
+        $settings   = SealingSetting::getSettings();
 
         $history = DB::table('t_log_scan')
             ->select(
@@ -64,7 +66,7 @@ class ScanController extends Controller
             ->limit(50)
             ->get();
 
-        return view('scan.console', compact('activeMenu', 'operators', 'history'));
+        return view('scan.console', compact('activeMenu', 'operators', 'settings', 'history'));
     }
 
     public function consolestore(Request $request)
@@ -103,8 +105,11 @@ class ScanController extends Controller
                 ->get()
                 ->keyBy('part_number_child_part');
 
+            $settings = SealingSetting::getSettings();
+            $cutQty = min($request->qty, $settings->cutting_qty);
+
             foreach ($boms as $bom) {
-                $totalReduction = $bom->bom_qty * $request->qty;
+                $totalReduction = $bom->bom_qty * $cutQty;
 
                 $childPart = $childParts->get($bom->part_number_child_part);
 
@@ -118,6 +123,10 @@ class ScanController extends Controller
 
                 $childPart->child_part_qty -= $totalReduction;
                 $childPart->save();
+
+                if ($childPart->child_part_qty < $settings->min_limit) {
+                    session()->flash('warning', "Peringatan: stok {$childPart->material_name} akan turun di bawah batas minimum.");
+                }
             }
 
             DB::table('t_log_scan')->insert([

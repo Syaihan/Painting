@@ -46,19 +46,7 @@
                 </div>
             </div>
 
-            <!-- INVESTIGATE -->
-            <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
-                <div class="bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-1.5 px-3 text-xs tracking-wider">
-                    INVESTIGATE
-                </div>
-                <div class="flex items-center justify-between p-4 bg-white">
-                    <span class="p-2.5 bg-rose-50 text-rose-600 rounded-lg text-xl group-hover:scale-110 transition-transform">❌</span>
-                    <div class="text-right">
-                        <span id="stat-investigate" class="text-2xl font-black text-rose-600">{{ $stats['investigate'] }}</span>
-                        <div class="text-[9px] text-gray-400 font-bold uppercase">Part Number</div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- TOTAL SCAN TODAY -->
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden group">
@@ -237,7 +225,7 @@
                                 <td class="p-2.5 text-left text-[10px] text-gray-600">{{ $stockName }}</td>
                                 <td class="p-2.5 font-bold text-gray-800">{{ $stockBalance }}</td>
                                 <td class="p-2.5">
-                                    <span class="{{ $stockStatus == 'Investigate' ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-amber-100 text-amber-800 border border-amber-200' }} px-2 py-0.5 rounded-md text-[10px] font-semibold inline-block">
+                                    <span class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md text-[10px] font-semibold inline-block">
                                         {{ $stockStatus }}
                                     </span>
                                 </td>
@@ -399,7 +387,6 @@
                     const elTotalPart = document.getElementById('stat-total-part');
                     const elSafe = document.getElementById('stat-safe');
                     const elUnderMinimum = document.getElementById('stat-under-minimum');
-                    const elInvestigate = document.getElementById('stat-investigate');
                     const elTotalScan = document.getElementById('stat-total-scan');
                     const elTotalNg = document.getElementById('stat-total-ng');
                     const elDate1 = document.getElementById('date-label-1');
@@ -408,7 +395,6 @@
                     if (elTotalPart) elTotalPart.innerText = res.stats.total_part;
                     if (elSafe) elSafe.innerText = res.stats.safe;
                     if (elUnderMinimum) elUnderMinimum.innerText = res.stats.under_minimum;
-                    if (elInvestigate) elInvestigate.innerText = res.stats.investigate;
                     if (elTotalScan) elTotalScan.innerText = res.stats.total_scan;
                     if (elTotalNg) elTotalNg.innerText = res.stats.total_ng;
 
@@ -449,9 +435,7 @@
                         let nonSafeHtml = '';
                     if (res.nonSafeStocks.length > 0) {
                         res.nonSafeStocks.forEach(stock => {
-                            let badgeClass = stock.status === 'Investigate' 
-                                ? 'bg-rose-100 text-rose-700 border border-rose-200' 
-                                : 'bg-amber-100 text-amber-800 border border-amber-200';
+                            let badgeClass = 'bg-amber-100 text-amber-800 border border-amber-200';
                             nonSafeHtml += `
                                 <tr class="text-center hover:bg-rose-50/30 transition-colors">
                                     <td class="p-2.5 text-left font-mono text-[10px] text-gray-700 font-medium">${stock.part_number}</td>

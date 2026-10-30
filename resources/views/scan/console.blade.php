@@ -68,7 +68,7 @@
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Scan Barcode
                         <input type="text" name="barcode" placeholder="Scan atau ketik barcode..." required autofocus class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
-                        <input type="hidden" name="qty" value="60">
+                        <input type="hidden" name="qty" value="{{ $settings->cutting_qty }}">
                     </label>
                 </div>
 

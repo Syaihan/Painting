@@ -80,6 +80,9 @@
                 @hasPermission('access-master-part')
                 <a href="{{ route('master.sealing.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>
                 @endhasPermission
+                @hasPermission('access-sealing-setting')
+                <a href="{{ route('sealing.setting') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('sealing-setting') ? 'bg-slate-800 text-white font-bold' : '' }}">Setting Sealing</a>
+                @endhasPermission
             </div>
         </div>
 

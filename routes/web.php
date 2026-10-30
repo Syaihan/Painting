@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterSealingController;
+use App\Http\Controllers\SettingSealingController;
 use App\Http\Controllers\ScanController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,21 +19,23 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 2. Route yang Membutuhkan Login (Menggunakan group middleware standar/custom, TANPA Closure)
 Route::middleware(['auth.custom'])->group(function () {
 
-    // Manajemen User & Registrasi Terpusat (Khusus Admin)
-    Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
-    Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
-    Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update');
-    Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
+    Route::middleware('permission:access-manajemen-user')->group(function () {
+        // Manajemen User & Registrasi Terpusat (Khusus Admin)
+        Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
+        Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
+        Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update');
+        Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
 
-    // Histori Session / Riwayat Login-Logout (Khusus Admin)
-    Route::get('/histori-session', [AuthController::class, 'historiSession'])->name('session.history');
+        // Histori Session / Riwayat Login-Logout (Khusus Admin)
+        Route::get('/histori-session', [AuthController::class, 'historiSession'])->name('session.history');
 
-    // Operator / Manajemen Operator (Khusus Admin)
-    Route::get('/operator', [AuthController::class, 'indexOperator'])->name('operator.index');
-    Route::post('/operator/store', [AuthController::class, 'storeOperator'])->name('operator.store');
-    Route::put('/operator/{id}', [AuthController::class, 'updateOperator'])->name('operator.update');
-    Route::delete('/operator/{id}', [AuthController::class, 'deleteOperator'])->name('operator.destroy');
-
+        // Operator / Manajemen Operator (Khusus Admin)
+        Route::get('/operator', [AuthController::class, 'indexOperator'])->name('operator.index');
+        Route::post('/operator/store', [AuthController::class, 'storeOperator'])->name('operator.store');
+        Route::put('/operator/{id}', [AuthController::class, 'updateOperator'])->name('operator.update');
+        Route::delete('/operator/{id}', [AuthController::class, 'deleteOperator'])->name('operator.destroy');
+    });
+    
     // MASTER SEALING
     Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {
         Route::get('/', [MasterSealingController::class, 'index'])->name('index');
@@ -48,6 +51,14 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::post('/bom/store', [MasterSealingController::class, 'storeBom'])->name('bom.store');
         Route::put('/bom/update/{barcode}/{childPart}', [MasterSealingController::class, 'updateBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.update');
         Route::delete('/bom/delete/{barcode}/{childPart}', [MasterSealingController::class, 'destroyBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.destroy');
+    });
+// SEALING SETTING
+    Route::middleware('permission:access-sealing-setting')->group(function () {
+        Route::get('/sealing-setting', [SettingSealingController::class, 'index'])
+            ->name('sealing.setting');
+
+        Route::put('/sealing-setting', [SettingSealingController::class, 'update'])
+            ->name('sealing.setting.update');
     });
 
     // SCAN/console
