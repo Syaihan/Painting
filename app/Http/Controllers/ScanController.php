@@ -393,7 +393,9 @@ class ScanController extends Controller
         $endDate = $request->input('end_date');
         $searches = $request->input('search', []); // Menerima array search per kolom
 
-        $query = ScanLog::query(); // Sesuaikan dengan nama Model Anda
+        $query = ScanLog::query()
+            ->select('t_log_scan.*', 'm_finish_good.fg_name')
+            ->leftJoin('m_finish_good', 't_log_scan.t_log_scan_fg', '=', 'm_finish_good.barcode_fg');
 
         // Filter Tanggal
         if (!empty($startDate) && !empty($endDate)) {
@@ -405,7 +407,7 @@ class ScanController extends Controller
             $keywordAll = $searches['all'];
             $query->where(function($q) use ($keywordAll) {
                 $q->where('t_log_scan_fg', 'like', "%{$keywordAll}%")
-                ->orWhere('t_log_scan_fg_part_number', 'like', "%{$keywordAll}%")
+                ->orWhere('m_finish_good.fg_name', 'like', "%{$keywordAll}%")
                 ->orWhere('t_log_scan_operator', 'like', "%{$keywordAll}%")
                 ->orWhere('t_log_scan_pic', 'like', "%{$keywordAll}%")
                 ->orWhere('t_log_scan_grup', 'like', "%{$keywordAll}%");
@@ -413,7 +415,7 @@ class ScanController extends Controller
         }
 
         // Pencarian Spesifik Per Kolom
-        $columns = ['t_log_scan_fg', 't_log_scan_fg_part_number', 't_log_scan_operator', 't_log_scan_pic', 't_log_scan_grup'];
+        $columns = ['t_log_scan_fg', 't_log_scan_operator', 't_log_scan_pic', 't_log_scan_grup'];
         foreach ($columns as $col) {
             if (!empty($searches[$col])) {
                 $query->where($col, 'like', "%{$searches[$col]}%");

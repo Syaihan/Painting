@@ -3,7 +3,8 @@
         <tr class="bg-gray-100 text-gray-700 border-b">
             <th class="p-2.5">No</th>
             <th class="p-2.5">Finished Good (FG)</th>
-            <th class="p-2.5">Part Number</th>
+            <th class="p-2.5">Nama FG</th>
+            <th class="p-2.5">Qty</th>
             <th class="p-2.5">Operator</th>
             <th class="p-2.5">PIC</th>
             <th class="p-2.5">Grup</th>
@@ -17,9 +18,10 @@
                     class="w-full text-[11px] border border-gray-300 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
             </th>
             <th class="p-2">
-                <input type="text" x-model="search.t_log_scan_fg_part_number" @keydown.enter="fetchData()" placeholder="Enter cari Part No..." 
+                <input type="text" x-model="search.fg_name" @keydown.enter="fetchData()" placeholder="Enter cari Nama FG..." 
                     class="w-full text-[11px] border border-gray-300 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
             </th>
+            <th class="p-2"></th>
             <th class="p-2">
                 <input type="text" x-model="search.t_log_scan_operator" @keydown.enter="fetchData()" placeholder="Enter cari Operator..." 
                     class="w-full text-[11px] border border-gray-300 rounded p-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500">
@@ -40,7 +42,8 @@
             <tr class="border-b hover:bg-gray-50">
                 <td class="p-2.5">{{ $logs->firstItem() + $index }}</td>
                 <td class="p-2.5">{{ $log->t_log_scan_fg }}</td>
-                <td class="p-2.5">{{ $log->t_log_scan_fg_part_number }}</td>
+                <td class="p-2.5">{{ $log->fg_name }}</td>
+                <td class="p-2.5">{{ $log->t_log_scan_qty }}</td>
                 <td class="p-2.5">{{ $log->t_log_scan_operator }}</td>
                 <td class="p-2.5">{{ $log->t_log_scan_pic }}</td>
                 <td class="p-2.5">{{ $log->t_log_scan_grup }}</td>
@@ -48,7 +51,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="7" class="text-center p-4 text-gray-400">Tidak ada data ditemukan.</td>
+                <td colspan="8" class="text-center p-4 text-gray-400">Tidak ada data ditemukan.</td>
             </tr>
         @endforelse
     </tbody>

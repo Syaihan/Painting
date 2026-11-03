@@ -89,12 +89,13 @@ class DashboardController extends Controller
             return ScanLog::select(
                     't_log_scan_timestamp as jam',
                     't_log_scan_fg as fq',
-                    't_log_scan_fg_part_number as part_number',
+                    'm_finish_good.fg_name as fg_name',
                     't_log_scan_qty as qty',
                     't_log_scan_operator as operator',
                     't_log_scan_pic as pic',
                     't_log_scan_grup as grup'
                 )
+                ->leftJoin('m_finish_good', 't_log_scan.t_log_scan_fg', '=', 'm_finish_good.barcode_fg')
                 ->orderBy('t_log_scan_timestamp', 'desc')
                 ->limit(10)
                 ->get()

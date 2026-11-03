@@ -6,7 +6,7 @@
             search: {
                 all: '{{ $search['all'] ?? '' }}',
                 t_log_scan_fg: '{{ $search['t_log_scan_fg'] ?? '' }}',
-                t_log_scan_fg_part_number: '{{ $search['t_log_scan_fg_part_number'] ?? '' }}',
+                fg_name: '{{ $search['fg_name'] ?? '' }}',
                 t_log_scan_operator: '{{ $search['t_log_scan_operator'] ?? '' }}',
                 t_log_scan_pic: '{{ $search['t_log_scan_pic'] ?? '' }}',
                 t_log_scan_grup: '{{ $search['t_log_scan_grup'] ?? '' }}'
@@ -22,7 +22,7 @@
                     end_date: this.endDate,
                     'search[all]': this.search.all,
                     'search[t_log_scan_fg]': this.search.t_log_scan_fg,
-                    'search[t_log_scan_fg_part_number]': this.search.t_log_scan_fg_part_number,
+                    'search[fg_name]': this.search.fg_name,
                     'search[t_log_scan_operator]': this.search.t_log_scan_operator,
                     'search[t_log_scan_pic]': this.search.t_log_scan_pic,
                     'search[t_log_scan_grup]': this.search.t_log_scan_grup
@@ -49,7 +49,7 @@
                 this.search = {
                     all: '',
                     t_log_scan_fg: '',
-                    t_log_scan_fg_part_number: '',
+                    fg_name: '',
                     t_log_scan_operator: '',
                     t_log_scan_pic: '',
                     t_log_scan_grup: ''
