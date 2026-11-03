@@ -101,10 +101,9 @@ class MasterSealingController extends Controller
         $request->validate([
             'part_number_child_part' => 'required|string|unique:m_child_part,part_number_child_part',
             'material_name' => 'required|string|max:255',
-            'child_part_qty' => 'required|integer|min:0',
         ]);
 
-        ChildPart::create($request->only(['part_number_child_part', 'material_name', 'child_part_qty']));
+        ChildPart::create($request->only(['part_number_child_part', 'material_name']));
 
         $this->clearMasterCache();
 
@@ -115,10 +114,9 @@ class MasterSealingController extends Controller
     {
         $request->validate([
             'material_name' => 'required|string|max:255',
-            'child_part_qty' => 'required|integer|min:0',
         ]);
 
-        ChildPart::where('part_number_child_part', $id)->firstOrFail()->update($request->only(['material_name', 'child_part_qty']));
+        ChildPart::where('part_number_child_part', $id)->firstOrFail()->update($request->only(['material_name']));
 
         $this->clearMasterCache();
 

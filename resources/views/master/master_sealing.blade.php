@@ -119,7 +119,6 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Part Number</th>
                                     <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Material Name</th>
-                                    <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Qty Stok</th>
                                     <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase">Aksi</th>
                                 </tr>
                             </thead>
@@ -131,7 +130,6 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item['part_number_child_part'] }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $item['material_name'] }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $item['child_part_qty'] }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap space-x-2">
                                         <button type="button" onclick="openModal('editCp{{ $item['part_number_child_part'] }}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs">Edit</button>
                                         <form action="{{ route('master.sealing.cp.destroy', $item['part_number_child_part']) }}" method="POST" class="inline" onsubmit="return confirm('Hapus data?')">
@@ -157,10 +155,6 @@
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700">Material Name</label>
                                                 <input type="text" name="material_name" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['material_name'] }}" required>
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700">Qty Stok</label>
-                                                <input type="number" name="child_part_qty" class="mt-1 block w-full rounded-md border-gray-300 border p-2 text-sm" value="{{ $item['child_part_qty'] }}" min="0" required>
                                             </div>
                                             <div class="flex justify-end space-x-2 pt-4">
                                                 <button type="button" onclick="closeModal('editCp{{ $item['part_number_child_part'] }}')" class="bg-gray-300 px-4 py-2 rounded text-sm">Batal</button>
