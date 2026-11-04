@@ -131,7 +131,7 @@
                                 <th class="p-2.5 border-b border-gray-200">TIMESTAMP</th>
                                 <th class="p-2.5 border-b border-gray-200">BARCODE FG</th>
                                 <th class="p-2.5 border-b border-gray-200 text-left">NAMA FG</th>
-                                <th class="p-2.5 border-b border-gray-200">PIC</th>
+                                <th class="p-2.5 border-b border-gray-200">OPERATOR</th>
                                 <th class="p-2.5 border-b border-gray-200">GROUP</th>
                                 <th class="p-2.5 border-b border-gray-200">QTY</th>
                             </tr>
@@ -143,21 +143,21 @@
                                     $rowJam   = $row->jam;
                                     $rowFq    = $row->fq;
                                     $rowFgName  = $row->fg_name;
-                                    $rowPic   = $row->pic;
+                                    $rowOperator   = $row->operator;
                                     $rowGrup  = $row->grup;
                                     $rowQty   = $row->qty;
                                 } elseif (is_array($row)) {
                                     $rowJam   = $row['jam'] ?? '-';
                                     $rowFq    = $row['fq'] ?? '-';
                                     $rowFgName  = $row['fg_name'] ?? '-';
-                                    $rowPic   = $row['pic'] ?? '-';
+                                    $rowOperator   = $row['operator'] ?? '-';
                                     $rowGrup  = $row['grup'] ?? '-';
                                     $rowQty   = $row['qty'] ?? '-';
                                 } else {
                                     $rowJam   = $row;
                                     $rowFq    = '-';
                                     $rowFgName  = '-';
-                                    $rowPic   = '-';
+                                    $rowOperator   = '-';
                                     $rowGrup  = '-';
                                     $rowQty   = '-';
                                 }
@@ -166,7 +166,7 @@
                                 <td class="p-2.5 font-mono text-gray-500">{{ $rowJam }}</td>
                                 <td class="p-2.5 font-mono text-left font-medium text-gray-700">{{ $rowFq }}</td>
                                 <td class="p-2.5 text-left text-gray-800 font-medium">{{ $rowFgName }}</td>
-                                <td class="p-2.5 text-gray-600">{{ $rowPic }}</td>
+                                <td class="p-2.5 text-gray-600">{{ $rowOperator }}</td>
                                 <td class="p-2.5 font-semibold text-gray-700">
                                     <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup {{ $rowGrup }}</span>
                                 </td>
@@ -269,15 +269,16 @@
                 window.partChartInstance.destroy();
             }
 
-            // 1. Chart Category NG (Pie)
+            // 1. Chart Category NG (Doughnut)
             const categoryData = initialCategoryData || @json($chartCategoryNg);
             window.categoryChartInstance = new Chart(canvasCategory.getContext('2d'), {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: Object.keys(categoryData),
                     datasets: [{
                         data: Object.values(categoryData),
-                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa']
+                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa'],
+                        cutout: '50%'
                     }]
                 },
                 options: {
@@ -397,7 +398,6 @@
                     if (elUnderMinimum) elUnderMinimum.innerText = res.stats.under_minimum;
                     if (elTotalScan) elTotalScan.innerText = res.stats.total_scan;
                     if (elTotalNg) elTotalNg.innerText = res.stats.total_ng;
-
                     if (elDate1) elDate1.innerText = res.stats.date;
                     if (elDate2) elDate2.innerText = res.stats.date;
 
@@ -415,7 +415,7 @@
                                     <td class="p-2.5 font-mono text-gray-500">${row.jam}</td>
                                     <td class="p-2.5 font-mono text-left font-medium text-gray-700">${row.fq}</td>
                                     <td class="p-2.5 text-left text-gray-800 font-medium">${row.fg_name}</td>
-                                    <td class="p-2.5 text-gray-600">${row.pic}</td>
+                                    <td class="p-2.5 text-gray-600">${row.operator}</td>
                                     <td class="p-2.5 font-semibold text-gray-700">
                                         <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px]">Grup ${row.grup}</span>
                                     </td>
