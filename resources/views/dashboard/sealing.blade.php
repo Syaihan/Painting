@@ -84,7 +84,7 @@
             <!-- Category NG Sealing -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col">
                 <div class="text-gray-800 font-bold text-xs uppercase tracking-wider pb-3 mb-3 border-b border-gray-100 flex items-center justify-between relative">
-                    <span>Category NG Sealing (Apr - Mar)</span>
+                    <span>Category NG Sealing</span>
                     <span id="btn-filter-chart" class="text-gray-400 text-xs cursor-pointer hover:text-blue-600" title="Klik untuk filter tanggal" onclick="showFilterMenu()">📉 <span id="filter-active-badge" class="ml-1 hidden bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">●</span></span>
                 </div>
                 <div class="relative flex-grow flex items-center justify-center min-h-[180px]">
@@ -120,7 +120,7 @@
             <!-- NG Part Sealing -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col">
                 <div class="text-gray-800 font-bold text-xs uppercase tracking-wider pb-3 mb-3 border-b border-gray-100 flex items-center justify-between">
-                    <span>NG Part Sealing (Apr - Mar)</span>
+                    <span>NG Part Sealing</span>
                     <span class="text-gray-400 text-xs">📊</span>
                 </div>
                 <div class="relative flex-grow flex items-center justify-center min-h-[180px]">
