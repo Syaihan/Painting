@@ -156,6 +156,50 @@ class DashboardController extends Controller
     }
 
     /**
+     * Helper: Mengambil data chart dengan filter rentang tanggal.
+     * Jika date_start/date_end kosong, default ke 1 bulan (tanggal 1 s.d. hari ini).
+     */
+    public function sealingChartData(Request $request)
+    {
+        $now = Carbon::now('Asia/Jakarta');
+
+        $dateStart = $request->query('date_start');
+        $dateEnd   = $request->query('date_end');
+
+        // Default: 1 bulan (tanggal 1 bulan ini s.d. hari ini)
+        if (empty($dateStart)) {
+            $dateStart = $now->copy()->startOfMonth()->format('Y-m-d');
+        }
+        if (empty($dateEnd)) {
+            $dateEnd = $now->format('Y-m-d');
+        }
+
+        $start = Carbon::parse($dateStart, 'Asia/Jakarta')->startOfDay();
+        $end   = Carbon::parse($dateEnd, 'Asia/Jakarta')->endOfDay();
+
+        $chartCategoryNg = NgSealingLog::select('t_log_ng_sealing_ket as category', DB::raw('COUNT(t_log_ng_sealing_qty) as total'))
+            ->whereBetween('t_log_ng_sealing_timestamp', [$start, $end])
+            ->groupBy('t_log_ng_sealing_ket')
+            ->pluck('total', 'category')
+            ->toArray();
+
+        $chartNgPart = NgSealingLog::select('t_log_ng_sealing_part_name as part_name', DB::raw('SUM(t_log_ng_sealing_qty) as total'))
+            ->whereBetween('t_log_ng_sealing_timestamp', [$start, $end])
+            ->groupBy('t_log_ng_sealing_part_name')
+            ->orderBy('total', 'desc')
+            ->limit(10)
+            ->pluck('total', 'part_name')
+            ->toArray();
+
+        return response()->json([
+            'chartCategoryNg' => $chartCategoryNg,
+            'chartNgPart'     => $chartNgPart,
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+          ->header('Pragma', 'no-cache')
+          ->header('Expires', '0');
+    }
+
+    /**
      * Clear semua cache dashboard agar data otomatis update setelah transaksi
      * (ubah qty child_part, scan, NG, stock in, adjustment, dll).
      */

@@ -88,6 +88,7 @@ Route::get('/coating', function () {
 
 Route::get('/sealing', [DashboardController::class, 'sealing'])->name('dashboard.sealing');
 Route::get('/sealing/data', [DashboardController::class, 'sealingData'])->name('dashboard.sealing.data');
+Route::get('/sealing/chart-data', [DashboardController::class, 'sealingChartData'])->name('dashboard.sealing.chart.data');
 
 // Root URL ('/')
 Route::get('/', function () {

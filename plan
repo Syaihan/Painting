@@ -1,0 +1,125 @@
+Berikut adalah **rencana lengkap** semua perubahan yang akan saya lakukan, diurutkan dari yang paling fundamental ke perubahan tampilan:
+
+---
+
+## 1. `routes/web.php`
+
+Tambahkan route baru untuk mengambil data chart dengan filter rentang tanggal:
+
+```php
+Route::get('/sealing/chart-data', [DashboardController::class, 'sealingChartData'])->name('dashboard.sealing.chart.data');
+```
+
+---
+
+## 2. `app/Http/Controllers/DashboardController.php`
+
+Tambahkan method baru `sealingChartData(Request $request)`:
+
+- Terima parameter opsional `date_start` dan `date_end` dari query string
+- Jika keduanya kosong → default ke **1 bulan**: tanggal 1 bulan ini hingga hari ini (Asia/Jakarta)
+- Jika diisi → gunakan rentang tanggal yang dipilih user
+- Query model `NgSealingLog` dengan `whereBetween('t_log_ng_sealing_timestamp', [$start, $end])`
+- Kembalikan JSON: `chartCategoryNg` dan `chartNgPart`
+
+---
+
+## 3. `resources/views/dashboard/sealing.blade.php`
+
+### 3A. Ubah ikon 📉 (baris 86–89) menjadi tombol interaktif
+
+- Tambahkan `id="btn-filter-chart"` dan `onclick="toggleFilterMenu()"`
+- Tambahkan class `cursor-pointer hover:text-gray-600`
+- Tambahkan indikator kecil (badge) jika filter aktif (contoh: titik biru kecil di samping ikon)
+
+### 3B. Tambahkan panel filter tanggal (modal / dropdown)
+
+Tempatkan di bawah atau di samping card `chartCategoryNg`:
+
+- Judul: "Filter Tanggal Chart"
+- Input `type="date"` untuk **Tanggal Mulai** (default: tanggal 1 bulan ini)
+- Input `type="date"` untuk **Tanggal Selesai** (default: hari ini)
+- Tombol **"Terapkan"** → ambil nilai date picker, panggil fungsi fetch chart baru, sembunyikan panel
+- Tombol **"Reset"** → kembali ke default 1 bulan, sembunyikan panel
+- Panel awalnya `hidden` (display:none), muncul saat klik 📉
+
+### 3C. Modifikasi JavaScript
+
+#### Variabel state baru (di awal `<script>`)
+
+```javascript
+window.selectedDateStart = null; // string YYYY-MM-DD
+window.selectedDateEnd = null; // string YYYY-MM-DD
+window.filterMenuOpen = false;
+```
+
+#### Fungsi baru: `getDefaultOneMonthRange()`
+
+Kembalikan objek `{start, end}` dengan:
+
+- `start` = tanggal 1 bulan ini (format YYYY-MM-DD)
+- `end` = hari ini (format YYYY-MM-DD)
+
+#### Fungsi baru: `fetchChartData(dateStart, dateEnd)`
+
+- `async` function yang fetch route `{{ route('dashboard.sealing.chart.data') }}?date_start=...&date_end=...`
+- Jika parameter kosong, kirim default 1 bulan
+- Parse JSON response
+- Panggil `window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart)` untuk update chart
+
+#### Ubah `window.initDashboardCharts()`
+
+Saat ini fungsi ini **destroy dan rebuild** chart setiap kali dipanggil. Perbaikan:
+
+- Jika instance chart sudah ada (`window.categoryChartInstance` / `window.partChartInstance`): **update data saja** (set `data.labels`, `data.datasets[0].data`, lalu `.update()`), jangan destroy
+- Jika belum ada: buat baru seperti sekarang
+
+#### Ubah `window.initDashboardCharts()` pemanggilan awal
+
+Saat `DOMContentLoaded`:
+
+- Panggil `fetchChartData()` dengan default 1 bulan (tanpa parameter, atau dengan parameter default)
+
+#### Ubah chart polling (interval 60 detik, baris 462–475)
+
+Saat ini memanggil `initDashboardCharts(res.chartCategoryNg, res.chartNgPart)` dari route lama `dashboard.sealing.data` yang selalu mengembalikan fiscal year. Ubah menjadi:
+
+- Panggil `fetchChartData(window.selectedDateStart, window.selectedDateEnd)`
+- Jika user belum pilih tanggal, otomatis pakai default 1 bulan
+- Jadi polling tidak akan overwrite filter yang sudah dipilih user
+
+#### Fungsi `toggleFilterMenu()`
+
+- Toggle `filterMenuOpen`
+- Tampilkan/sembunyikan panel filter (ubah class `hidden` / `block` atau style `display`)
+
+#### Event listener tombol "Terapkan" di panel filter
+
+- Ambil nilai dari input date start dan end
+- Simpan ke `window.selectedDateStart` dan `window.selectedDateEnd`
+- Panggil `fetchChartData(selectedDateStart, selectedDateEnd)`
+- Sembunyikan panel filter
+- Tampilkan indikator filter aktif di samping ikon 📉
+
+#### Event listener tombol "Reset" di panel filter
+
+- Kosongkan `window.selectedDateStart` dan `window.selectedDateEnd`
+- Panggil `fetchChartData()` (default 1 bulan)
+- Sembunyikan panel filter
+- Sembunyikan indikator filter aktif
+
+---
+
+## 4. Urutan Eksekusi (setelah beralih ke Act mode)
+
+1. Edit `routes/web.php` → tambah route
+2. Edit `app/Http/Controllers/DashboardController.php` → tambah method `sealingChartData()`
+3. Edit `resources/views/dashboard/sealing.blade.php`:
+    - Ubah ikon 📉 jadi tombol klik
+    - Tambah HTML panel filter tanggal
+    - Tambah/modifikasi JavaScript (variabel state, fungsi fetch, ubah initDashboardCharts, ubah polling, toggle menu, tombol Terapkan/Reset)
+4. Verifikasi dengan membuka halaman di browser (jika memungkinkan)
+
+---
+
+Apakah rencana ini sudah lengkap dan sesuai keinginan Anda, atau ada bagian yang ingin ditambahkan/diubah sebelum saya mulai implementasi?

@@ -83,12 +83,37 @@
             
             <!-- Category NG Sealing -->
             <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col">
-                <div class="text-gray-800 font-bold text-xs uppercase tracking-wider pb-3 mb-3 border-b border-gray-100 flex items-center justify-between">
+                <div class="text-gray-800 font-bold text-xs uppercase tracking-wider pb-3 mb-3 border-b border-gray-100 flex items-center justify-between relative">
                     <span>Category NG Sealing (Apr - Mar)</span>
-                    <span class="text-gray-400 text-xs">📉</span>
+                    <span id="btn-filter-chart" class="text-gray-400 text-xs cursor-pointer hover:text-blue-600" title="Klik untuk filter tanggal" onclick="showFilterMenu()">📉 <span id="filter-active-badge" class="ml-1 hidden bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">●</span></span>
                 </div>
                 <div class="relative flex-grow flex items-center justify-center min-h-[180px]">
                     <canvas id="chartCategoryNg"></canvas>
+                </div>
+
+                <!-- Backdrop transparan di belakang panel filter -->
+                <div id="filter-backdrop" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-49 hidden transition-opacity duration-200" onclick="hideFilterMenu()"></div>
+
+                <!-- Panel Filter Tanggal Chart (overlay menimpa dashboard, background transparan di belakang) -->
+                <div id="filter-chart-panel" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl p-4 z-50 hidden w-full max-w-xs transition-all duration-300">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-xs font-bold text-gray-700 uppercase tracking-wider">Filter Tanggal</div>
+                        <button onclick="hideFilterMenu()" class="text-gray-400 hover:text-gray-600 text-xs">✕</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="text-[10px] text-gray-500 block mb-1">Mulai</label>
+                            <input type="date" id="filter-date-start" class="w-full px-2.5 py-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-gray-500 block mb-1">Selesai</label>
+                            <input type="date" id="filter-date-end" class="w-full px-2.5 py-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="applyFilterChart()" class="flex-1 bg-blue-600 text-white text-xs py-2 rounded-md hover:bg-blue-700 transition-colors">Terapkan</button>
+                        <button onclick="resetFilterChart()" class="flex-1 bg-gray-100 text-gray-700 text-xs py-2 rounded-md hover:bg-gray-200 transition-colors border border-gray-300">Reset</button>
+                    </div>
                 </div>
             </div>
 
@@ -249,6 +274,40 @@
     <script src="{{ asset('js/chartjs-plugin-datalabels.min.js') }}"></script>
     
     <script>
+        // State filter tanggal chart
+        window.selectedDateStart = null;
+        window.selectedDateEnd = null;
+        window.filterMenuOpen = false;
+
+        // Fungsi helper: dapatkan rentang default 1 bulan (tanggal 1 s.d. hari ini)
+        function getDefaultOneMonthRange() {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            const toISO = d => {
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+            };
+            return { start: toISO(start), end: toISO(now) };
+        }
+
+        // Fungsi fetch data chart dengan filter tanggal (default 1 bulan)
+        async function fetchChartData(dateStart = null, dateEnd = null) {
+            if (dateStart === null || dateEnd === null) {
+                const range = getDefaultOneMonthRange();
+                dateStart = range.start;
+                dateEnd   = range.end;
+            }
+            const url = `{{ route('dashboard.sealing.chart.data') }}?date_start=${encodeURIComponent(dateStart)}&date_end=${encodeURIComponent(dateEnd)}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Gagal ambil data chart');
+                const res = await response.json();
+                window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
+            } catch (error) {
+                console.error('Gagal fetch chart data:', error);
+            }
+        }
+
         // Fungsi inisialisasi chart dengan parameter data opsional untuk update berkala
         window.initDashboardCharts = function(initialCategoryData = null, initialPartData = null) {
             if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
@@ -261,86 +320,90 @@
 
             if (!canvasCategory || !canvasPart) return;
 
-            // Hancurkan instance chart lama untuk mencegah error canvas reuse
-            if (window.categoryChartInstance) {
-                window.categoryChartInstance.destroy();
-            }
-            if (window.partChartInstance) {
-                window.partChartInstance.destroy();
-            }
-
-            // 1. Chart Category NG (Doughnut)
+            // 1. Chart Category NG (Doughnut) — buat baru atau update data
             const categoryData = initialCategoryData || @json($chartCategoryNg);
-            window.categoryChartInstance = new Chart(canvasCategory.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categoryData),
-                    datasets: [{
-                        data: Object.values(categoryData),
-                        backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa'],
-                        cutout: '50%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { boxWidth: 12, font: { size: 10 } }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: '#ffffff',
-                            font: { size: 11, weight: 'bold' },
-                            formatter: function(value, context) {
-                                const data = context.chart.data.datasets[0].data;
-                                const total = data.reduce((sum, val) => sum + val, 0);
-                                if (total === 0) return '0%';
-                                return ((value / total) * 100).toFixed(1) + '%';
-                            }
-                        }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
-
-            // 2. Chart NG Part (Bar)
-            const partData = initialPartData || @json($chartNgPart);
-            window.partChartInstance = new Chart(canvasPart.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(partData),
-                    datasets: [{
-                        label: 'Total QTY NG',
-                        data: Object.values(partData),
-                        backgroundColor: '#ef4444',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        datalabels: {
-                            anchor: 'center',
-                            align: 'center',
-                            color: '#ffffff',
-                            font: { size: 9, weight: 'bold' },
-                            rotation: -90,
-                            formatter: function(value, context) {
-                                return context.chart.data.labels[context.dataIndex] + ' (' + value + ')';
+            if (window.categoryChartInstance) {
+                window.categoryChartInstance.data.labels = Object.keys(categoryData);
+                window.categoryChartInstance.data.datasets[0].data = Object.values(categoryData);
+                window.categoryChartInstance.update();
+            } else {
+                window.categoryChartInstance = new Chart(canvasCategory.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categoryData),
+                        datasets: [{
+                            data: Object.values(categoryData),
+                            backgroundColor: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa'],
+                            cutout: '50%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { boxWidth: 12, font: { size: 10 } }
+                            },
+                            datalabels: {
+                                display: true,
+                                color: '#ffffff',
+                                font: { size: 11, weight: 'bold' },
+                                formatter: function(value, context) {
+                                    const data = context.chart.data.datasets[0].data;
+                                    const total = data.reduce((sum, val) => sum + val, 0);
+                                    if (total === 0) return '0%';
+                                    return ((value / total) * 100).toFixed(1) + '%';
+                                }
                             }
                         }
                     },
-                    scales: {
-                        x: { display: false },
-                        y: { beginAtZero: true, ticks: { font: { size: 9 } } }
-                    }
-                },
-                plugins: [ChartDataLabels]
-            });
+                    plugins: [ChartDataLabels]
+                });
+            }
+
+            // 2. Chart NG Part (Bar) — buat baru atau update data
+            const partData = initialPartData || @json($chartNgPart);
+            if (window.partChartInstance) {
+                window.partChartInstance.data.labels = Object.keys(partData);
+                window.partChartInstance.data.datasets[0].data = Object.values(partData);
+                window.partChartInstance.update();
+            } else {
+                window.partChartInstance = new Chart(canvasPart.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(partData),
+                        datasets: [{
+                            label: 'Total QTY NG',
+                            data: Object.values(partData),
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                anchor: 'center',
+                                align: 'center',
+                                color: '#ffffff',
+                                font: { size: 9, weight: 'bold' },
+                                rotation: -90,
+                                formatter: function(value, context) {
+                                    return context.chart.data.labels[context.dataIndex] + ' (' + value + ')';
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { display: false },
+                            y: { beginAtZero: true, ticks: { font: { size: 9 } } }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+            }
         }
 
         // ID interval untuk polling agar bisa dihentikan saat pindah halaman
@@ -466,23 +529,19 @@
                     return;
                 }
 
-                // Tambahkan timestamp untuk mencegah browser cache
-                let response = await fetch("{{ route('dashboard.sealing.data') }}?" + new Date().getTime());
-                if (!response.ok) return;
-                let res = await response.json();
-
-                window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
+                // Pakai tanggal terpilih user (atau default 1 bulan)
+                await fetchChartData(window.selectedDateStart, window.selectedDateEnd);
             }, 60000);
         }
 
-        // Inisialisasi awal saat halaman dimuat
+        // Inisialisasi awal saat halaman dimuat — default 1 bulan
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                window.initDashboardCharts();
+                fetchChartData();
                 startDashboardPolling();
             });
         } else {
-            window.initDashboardCharts();
+            fetchChartData();
             startDashboardPolling();
         }
         
@@ -492,8 +551,67 @@
 
             // Hanya restart jika masih di halaman sealing
             if (isSealingPage()) {
-                window.initDashboardCharts();
+                fetchChartData();
                 startDashboardPolling();
+            }
+        });
+
+        // === Fungsi Filter Tanggal Chart ===
+
+        // Hover-based filter panel (overlay)
+        function showFilterMenu() {
+            const panel = document.getElementById('filter-chart-panel');
+            const backdrop = document.getElementById('filter-backdrop');
+            const range = getDefaultOneMonthRange();
+            const elStart = document.getElementById('filter-date-start');
+            const elEnd = document.getElementById('filter-date-end');
+            if (elStart && !elStart.value) elStart.value = range.start;
+            if (elEnd && !elEnd.value) elEnd.value = range.end;
+            panel.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+        }
+
+        function hideFilterMenu() {
+            const panel = document.getElementById('filter-chart-panel');
+            const backdrop = document.getElementById('filter-backdrop');
+            panel.classList.add('hidden');
+            backdrop.classList.add('hidden');
+        }
+
+        function applyFilterChart() {
+            const elStart = document.getElementById('filter-date-start');
+            const elEnd = document.getElementById('filter-date-end');
+            const badge = document.getElementById('filter-active-badge');
+
+            if (elStart && elEnd) {
+                window.selectedDateStart = elStart.value;
+                window.selectedDateEnd = elEnd.value;
+                fetchChartData(window.selectedDateStart, window.selectedDateEnd);
+                if (badge) badge.classList.remove('hidden');
+            }
+            hideFilterMenu();
+        }
+
+        function resetFilterChart() {
+            const badge = document.getElementById('filter-active-badge');
+            window.selectedDateStart = null;
+            window.selectedDateEnd = null;
+            fetchChartData(); // default 1 bulan
+            if (badge) badge.classList.add('hidden');
+            hideFilterMenu();
+        }
+
+        // Inisialisasi event klik saat DOM siap
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('btn-filter-chart');
+            const panel = document.getElementById('filter-chart-panel');
+            const backdrop = document.getElementById('filter-backdrop');
+            if (btn && panel && backdrop) {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showFilterMenu();
+                });
+                backdrop.addEventListener('click', hideFilterMenu);
             }
         });
     </script>
