@@ -24,6 +24,7 @@ class AdminUserSeeder extends Seeder
             'access-ng-log'             => 'Akses Log NG Sealing',
             'access-stock-adjustment'   => 'Akses Penyesuaian Stok',
             'access-master-part'        => 'Akses Master Part',
+            'access-sealing-plan'       => 'Akses Rencana Sealing',
             'access-manajemen-user'     => 'Akses Manajemen User',
         ];
 

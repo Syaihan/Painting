@@ -83,6 +83,9 @@
                 @hasPermission('access-sealing-setting')
                 <a href="{{ route('sealing.setting') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('sealing-setting') ? 'bg-slate-800 text-white font-bold' : '' }}">Setting Sealing</a>
                 @endhasPermission
+                @hasPermission('access-sealing-plan')
+                <a href="{{ route('sealing.plan.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('sealing-plan*') ? 'bg-slate-800 text-white font-bold' : '' }}">Sealing Plan</a>
+                @endhasPermission
             </div>
         </div>
 

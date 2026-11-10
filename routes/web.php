@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterSealingController;
 use App\Http\Controllers\SettingSealingController;
 use App\Http\Controllers\ScanController;
+use App\Http\Controllers\SealingPlanController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Route Tamu (Hanya untuk yang BELUM login)
@@ -59,6 +60,13 @@ Route::middleware(['auth.custom'])->group(function () {
 
         Route::put('/sealing-setting', [SettingSealingController::class, 'update'])
             ->name('sealing.setting.update');
+    });
+
+// SEALING PLAN
+    Route::prefix('sealing-plan')->middleware('permission:access-sealing-plan')->name('sealing.plan.')->group(function () {
+        Route::get('/', [SealingPlanController::class, 'index'])->name('index');
+        Route::post('/', [SealingPlanController::class, 'store'])->name('store');
+        Route::post('/update/{id}', [SealingPlanController::class, 'update'])->name('update');
     });
 
     // SCAN/console
