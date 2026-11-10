@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FinishGood;
 use App\Models\SealingPlan;
+use App\Models\SealingPlanUpdateLog;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -52,6 +53,15 @@ class SealingPlanController extends Controller
                 $qty = 0;
             }
 
+            // Cek apakah sudah ada plan untuk tanggal+shift+FG ini
+            $existingPlan = SealingPlan::where('t_log_sealing_plan_date', $today)
+                ->where('t_log_sealing_plan_shift_name', $shiftName)
+                ->where('t_log_sealing_plan_barcode_fg', $barcodeFg)
+                ->first();
+
+            $oldQty = $existingPlan ? $existingPlan->t_log_sealing_plan_planned_qty : null;
+
+            // updateOrCreate: CREATE jika baru, UPDATE jika sudah ada
             SealingPlan::updateOrCreate(
                 [
                     't_log_sealing_plan_date' => $today,
@@ -65,6 +75,22 @@ class SealingPlanController extends Controller
                     't_log_sealing_plan_created_by' => $createdBy,
                 ]
             );
+
+            // BUAT LOG HANYA JIKA ADA UPDATE (data lama ada dan qty berubah)
+            if ($existingPlan && $oldQty !== $qty) {
+                $fg = FinishGood::where('barcode_fg', $barcodeFg)->first();
+
+                SealingPlanUpdateLog::create([
+                    't_log_sealing_plan_update_log_date' => $today,
+                    't_log_sealing_plan_update_log_shift_name' => $shiftName,
+                    't_log_sealing_plan_update_log_barcode_fg' => $barcodeFg,
+                    't_log_sealing_plan_update_log_part_number_fg' => $fg ? $fg->part_number_fg : '',
+                    't_log_sealing_plan_update_log_fg_name' => $fg ? $fg->fg_name : '',
+                    't_log_sealing_plan_update_log_old_qty' => $oldQty,
+                    't_log_sealing_plan_update_log_new_qty' => $qty,
+                    't_log_sealing_plan_update_log_created_by' => $createdBy,
+                ]);
+            }
         }
 
         return redirect()->route('sealing.plan.index')
@@ -78,10 +104,29 @@ class SealingPlanController extends Controller
         ]);
 
         $plan = SealingPlan::where('t_log_sealing_plan_id', $id)->firstOrFail();
+        $oldQty = $plan->t_log_sealing_plan_planned_qty;
+        $newQty = $request->t_log_sealing_plan_planned_qty;
+
         $plan->update([
-            't_log_sealing_plan_planned_qty' => $request->t_log_sealing_plan_planned_qty,
+            't_log_sealing_plan_planned_qty' => $newQty,
             't_log_sealing_plan_status' => 'planned',
         ]);
+
+        // BUAT LOG JIKA QTY BERUBAH
+        if ($oldQty !== $newQty) {
+            $fg = FinishGood::where('barcode_fg', $plan->t_log_sealing_plan_barcode_fg)->first();
+
+            SealingPlanUpdateLog::create([
+                't_log_sealing_plan_update_log_date' => $plan->t_log_sealing_plan_date,
+                't_log_sealing_plan_update_log_shift_name' => $plan->t_log_sealing_plan_shift_name,
+                't_log_sealing_plan_update_log_barcode_fg' => $plan->t_log_sealing_plan_barcode_fg,
+                't_log_sealing_plan_update_log_part_number_fg' => $fg ? $fg->part_number_fg : '',
+                't_log_sealing_plan_update_log_fg_name' => $fg ? $fg->fg_name : '',
+                't_log_sealing_plan_update_log_old_qty' => $oldQty,
+                't_log_sealing_plan_update_log_new_qty' => $newQty,
+                't_log_sealing_plan_update_log_created_by' => session('operator_name', 'Operator'),
+            ]);
+        }
 
         return redirect()->route('sealing.plan.index')
             ->with('success', 'Qty rencana berhasil diperbarui!');

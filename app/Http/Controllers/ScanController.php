@@ -9,6 +9,7 @@ use App\Models\Bom;
 use App\Models\ChildPart;
 use App\Models\NgSealingLog;
 use App\Models\SealingSetting;
+use App\Models\SealingPlan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
@@ -138,6 +139,30 @@ class ScanController extends Controller
                 't_log_scan_grup'           => $grup,
                 't_log_scan_timestamp'      => now('Asia/Jakarta'),
             ]);
+
+            // Akumulasi actual_qty pada t_log_sealing_plan berdasarkan scan
+            $shiftData = getActiveShiftData();
+            $shiftName = $shiftData['shift_name'];
+            $today     = Carbon::now('Asia/Jakarta')->toDateString();
+
+            $existingPlan = SealingPlan::where('t_log_sealing_plan_date', $today)
+                ->where('t_log_sealing_plan_shift_name', $shiftName)
+                ->where('t_log_sealing_plan_barcode_fg', $request->barcode)
+                ->first();
+
+            if ($existingPlan) {
+                $existingPlan->increment('t_log_sealing_plan_actual_qty', $request->qty);
+            } else {
+                SealingPlan::create([
+                    't_log_sealing_plan_date'             => $today,
+                    't_log_sealing_plan_shift_name'       => $shiftName,
+                    't_log_sealing_plan_barcode_fg'       => $request->barcode,
+                    't_log_sealing_plan_planned_qty'      => 0,
+                    't_log_sealing_plan_actual_qty'       => $request->qty,
+                    't_log_sealing_plan_status'           => 'planned',
+                    't_log_sealing_plan_created_by'       => $request->operator,
+                ]);
+            }
 
             DB::commit();
 
