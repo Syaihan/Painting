@@ -49,6 +49,7 @@
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase border-b border-gray-200">Part Number</th>
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase border-b border-gray-200">Nama Finish Good</th>
                                 <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase border-b border-gray-200 text-right">Qty Rencana</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-gray-600 uppercase border-b border-gray-200 text-right">Qty Actual (Scan)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -60,6 +61,7 @@
                                     $barcode = $fg->barcode_fg;
                                     $plan = $existingPlans->get($barcode);
                                     $plannedQty = $plan ? $plan->t_log_sealing_plan_planned_qty : 0;
+                                    $actualQty = $plan ? $plan->t_log_sealing_plan_actual_qty : 0;
                                 @endphp
                                 <tr>
                                 <td class="px-4 py-3 text-sm text-gray-700 border-b border-gray-200">{{ $no++ }}</td>
@@ -73,6 +75,9 @@
                                            min="0"
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm text-sm text-right"
                                            required>
+                                </td>
+                                <td class="px-4 py-3 text-right border-b border-gray-200 font-mono text-gray-700">
+                                    {{ $actualQty }}
                                 </td>
                             </tr>
                             @endforeach

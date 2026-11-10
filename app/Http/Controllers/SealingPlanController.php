@@ -19,7 +19,28 @@ class SealingPlanController extends Controller
         // Ambil semua FG
         $finishGoods = FinishGood::orderBy('barcode_fg', 'asc')->get();
 
-        // Ambil plan yang sudah ada untuk shift ini hari ini
+        // AUTO-GENERATE: Buat plan otomatis untuk semua FG jika belum ada untuk shift ini hari ini
+        $createdBy = session('operator_name', 'System');
+        foreach ($finishGoods as $fg) {
+            $exists = SealingPlan::where('t_log_sealing_plan_date', $today)
+                ->where('t_log_sealing_plan_shift_name', $shiftName)
+                ->where('t_log_sealing_plan_barcode_fg', $fg->barcode_fg)
+                ->exists();
+
+            if (!$exists) {
+                SealingPlan::create([
+                    't_log_sealing_plan_date'             => $today,
+                    't_log_sealing_plan_shift_name'       => $shiftName,
+                    't_log_sealing_plan_barcode_fg'       => $fg->barcode_fg,
+                    't_log_sealing_plan_planned_qty'      => 0,
+                    't_log_sealing_plan_actual_qty'       => 0,
+                    't_log_sealing_plan_status'           => 'planned',
+                    't_log_sealing_plan_created_by'       => $createdBy,
+                ]);
+            }
+        }
+
+        // Ambil plan yang sudah ada untuk shift ini hari ini (termasuk yang baru dibuat)
         $existingPlans = SealingPlan::where('t_log_sealing_plan_date', $today)
             ->where('t_log_sealing_plan_shift_name', $shiftName)
             ->get()
@@ -61,20 +82,24 @@ class SealingPlanController extends Controller
 
             $oldQty = $existingPlan ? $existingPlan->t_log_sealing_plan_planned_qty : null;
 
-            // updateOrCreate: CREATE jika baru, UPDATE jika sudah ada
-            SealingPlan::updateOrCreate(
-                [
-                    't_log_sealing_plan_date' => $today,
-                    't_log_sealing_plan_shift_name' => $shiftName,
-                    't_log_sealing_plan_barcode_fg' => $barcodeFg,
-                ],
-                [
+            if ($existingPlan) {
+                // UPDATE: hanya ubah planned_qty, JANGAN sentuh actual_qty
+                $existingPlan->update([
                     't_log_sealing_plan_planned_qty' => $qty,
-                    't_log_sealing_plan_actual_qty' => 0,
                     't_log_sealing_plan_status' => 'planned',
-                    't_log_sealing_plan_created_by' => $createdBy,
-                ]
-            );
+                ]);
+            } else {
+                // CREATE: buat baru dengan actual_qty = 0
+                SealingPlan::create([
+                    't_log_sealing_plan_date'             => $today,
+                    't_log_sealing_plan_shift_name'       => $shiftName,
+                    't_log_sealing_plan_barcode_fg'       => $barcodeFg,
+                    't_log_sealing_plan_planned_qty'      => $qty,
+                    't_log_sealing_plan_actual_qty'       => 0,
+                    't_log_sealing_plan_status'           => 'planned',
+                    't_log_sealing_plan_created_by'       => $createdBy,
+                ]);
+            }
 
             // BUAT LOG HANYA JIKA ADA UPDATE (data lama ada dan qty berubah)
             if ($existingPlan && $oldQty !== $qty) {
