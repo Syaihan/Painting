@@ -134,8 +134,8 @@
                     <span>Achievement Sealing</span>
                     <span class="text-gray-400 text-xs">📈</span>
                 </div>
-                <div class="min-h-[180px] flex-grow flex items-center justify-center text-gray-400 text-xs italic bg-gray-50/50 border border-dashed border-gray-200 rounded-lg p-4">
-                    [Grafik Achievement Sealing]
+                <div class="relative flex-grow flex items-center justify-center min-h-[400px]">
+                    <canvas id="chartPlanActual"></canvas>
                 </div>
             </div>
         </div>
@@ -303,6 +303,7 @@
                 if (!response.ok) throw new Error('Gagal ambil data chart');
                 const res = await response.json();
                 window.initDashboardCharts(res.chartCategoryNg, res.chartNgPart);
+                window.initPlanActualChart(res.chartPlanActual);
             } catch (error) {
                 console.error('Gagal fetch chart data:', error);
             }
@@ -404,6 +405,82 @@
                     plugins: [ChartDataLabels]
                 });
             }
+        }
+
+        // 3. Chart Achievement Sealing per FG (Horizontal Bar)
+        window.initPlanActualChart = function(initialData = null) {
+            if (typeof Chart === 'undefined' || typeof ChartDataLabels === 'undefined') {
+                setTimeout(() => window.initPlanActualChart(initialData), 100);
+                return;
+            }
+
+            const canvas = document.getElementById('chartPlanActual');
+            if (!canvas) return;
+
+            const data = initialData || @json($chartPlanActual ?? []);
+            const labels = data.map(d => d.fg);
+            const planned = data.map(d => d.planned);
+            const actual = data.map(d => d.actual);
+
+            // Hancurkan instance lama jika ada, lalu buat baru dengan indexAxis: 'y'
+            if (window.planActualChartInstance) {
+                window.planActualChartInstance.destroy();
+                window.planActualChartInstance = null;
+            }
+
+            window.planActualChartInstance = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Plan',
+                            data: planned,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Actual',
+                            data: actual,
+                            backgroundColor: '#10b981',
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10 }, boxWidth: 12 }
+                        },
+                        datalabels: {
+                            display: true,
+                            align: 'end',
+                            anchor: 'end',
+                            color: '#374151',
+                            font: { size: 9, weight: 'bold' },
+                            formatter: function(value) {
+                                return value > 0 ? value : '';
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { font: { size: 9 } },
+                            title: { display: true, text: 'Qty', font: { size: 10, weight: 'bold' } }
+                        },
+                        y: {
+                            ticks: { font: { size: 9 } },
+                            title: { display: false }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
         }
 
         // ID interval untuk polling agar bisa dihentikan saat pindah halaman

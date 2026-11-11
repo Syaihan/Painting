@@ -10,6 +10,7 @@ use App\Models\NgSealingLog;
 use App\Models\SealingSetting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Models\SealingPlan;
 
 class DashboardController extends Controller
 {
@@ -191,9 +192,34 @@ class DashboardController extends Controller
             ->pluck('total', 'part_name')
             ->toArray();
 
+        // Chart Plan vs Actual per FG — hanya shift yang sedang berjalan
+        $shiftData = getActiveShiftData();
+        $currentShift = $shiftData['shift_name'] ?? null;
+        $shiftStart = $shiftData['start_time'];
+        $shiftEnd   = $shiftData['end_time'];
+
+        $chartPlanActual = SealingPlan::select(
+            't_log_sealing_plan_barcode_fg as barcode_fg',
+            DB::raw('SUM(t_log_sealing_plan_planned_qty) as planned'),
+            DB::raw('SUM(t_log_sealing_plan_actual_qty) as actual')
+        )
+            ->where('t_log_sealing_plan_shift_name', $currentShift)
+            ->whereBetween('t_log_sealing_plan_date', [$shiftStart, $shiftEnd])
+            ->groupBy('t_log_sealing_plan_barcode_fg')
+            ->orderBy('t_log_sealing_plan_barcode_fg', 'asc')
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'fg'       => $row->barcode_fg,
+                    'planned'  => (int) $row->planned,
+                    'actual'   => (int) $row->actual,
+                ];
+            });
+
         return response()->json([
             'chartCategoryNg' => $chartCategoryNg,
             'chartNgPart'     => $chartNgPart,
+            'chartPlanActual' => $chartPlanActual,
         ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
           ->header('Pragma', 'no-cache')
           ->header('Expires', '0');
