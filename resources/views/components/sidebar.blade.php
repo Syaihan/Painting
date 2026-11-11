@@ -62,28 +62,28 @@
             </button>
             
             <div x-show="isOpen && openScan" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
-                @hasPermission('access-scan-console')
+                @hasPermission('view-scan-console')
                 <a href="{{ route('scan.console') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/console') ? 'bg-slate-800 text-white font-bold' : '' }}">Scan Console</a>
                 @endhasPermission
-                @hasPermission('access-stock-card')
+                @hasPermission('view-stock-card')
                 <a href="{{ route('scan.stock_card') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-card') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock Card</a>
                 @endhasPermission
-                @hasPermission('access-stock-in')
+                @hasPermission('view-stock-in')
                 <a href="{{ route('scan.stock_in.form') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/stock-in') ? 'bg-slate-800 text-white font-bold' : '' }}">Stock In</a>
                 @endhasPermission
-                @hasPermission('access-ng-log')
+                @hasPermission('view-ng-log')
                 <a href="{{ route('scan.nglog') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('scan/nglog') ? 'bg-slate-800 text-white font-bold' : '' }}">NG Log</a>
                 @endhasPermission
                 
                 <a href="{{ route('scan.history')}}" class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition">Riwayat Scan</a>
                 
-                @hasPermission('access-master-part')
+                @hasPermission('view-master-part')
                 <a href="{{ route('master.sealing.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('master-sealing') ? 'bg-slate-800 text-white font-bold' : '' }}">Master Part</a>
                 @endhasPermission
-                @hasPermission('access-sealing-setting')
+                @hasPermission('view-sealing-setting')
                 <a href="{{ route('sealing.setting') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('sealing-setting') ? 'bg-slate-800 text-white font-bold' : '' }}">Setting Sealing</a>
                 @endhasPermission
-                @hasPermission('access-sealing-plan')
+                @hasPermission('view-sealing-plan')
                 <a href="{{ route('sealing.plan.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('sealing-plan*') ? 'bg-slate-800 text-white font-bold' : '' }}">Sealing Plan</a>
                 @endhasPermission
             </div>
@@ -131,19 +131,19 @@
             </button>
 
             <div x-show="isOpen && openAdmin" x-cloak class="pl-9 pr-2 py-1 space-y-1 text-xs font-medium text-blue-200">
-                @hasPermission('access-manajemen-user')
+                @hasPermission('view-manajemen-user')
                 <a href="{{ route('manajemen.user') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('manajemen-user') ? 'bg-slate-800 text-white font-bold' : '' }}">
                     <span class="text-lg">🧑‍💼</span>
                     <span x-show="isOpen">User Managemen</span>
                 </a>
                 @endhasPermission
-                @hasPermission('access-manajemen-user')
+                @hasPermission('view-manajemen-user')
                 <a href="{{ route('operator.index') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('operator') ? 'bg-slate-800 text-white font-bold' : '' }}">
                     <span class="text-lg">👷</span>
                     <span x-show="isOpen">Operator</span>
                 </a>
                 @endhasPermission
-                @hasPermission('access-manajemen-user')
+                @hasPermission('view-manajemen-user')
                 <a href="{{ route('session.history') }}" wire:navigate class="block px-2 py-1.5 rounded hover:bg-slate-800 hover:text-white transition {{ request()->is('histori-session') ? 'bg-slate-800 text-white font-bold' : '' }}">
                     <span class="text-lg">🕘</span>
                     <span x-show="isOpen">Histori Session</span>

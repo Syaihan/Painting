@@ -20,12 +20,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 2. Route yang Membutuhkan Login (Menggunakan group middleware standar/custom, TANPA Closure)
 Route::middleware(['auth.custom'])->group(function () {
 
-    Route::middleware('permission:access-manajemen-user')->group(function () {
-        // Manajemen User & Registrasi Terpusat (Khusus Admin)
-        Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->name('manajemen.user');
-        Route::post('/manajemen-user/register', [AuthController::class, 'register'])->name('register.process');
-        Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->name('users.update');
-        Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->name('users.delete');
+    // Manajemen User — GET (view-only) vs POST/PUT/DELETE (full access)
+    Route::get('/manajemen-user', [AuthController::class, 'indexManajemenUser'])->middleware('permission:view-manajemen-user')->name('manajemen.user');
+    Route::post('/manajemen-user/register', [AuthController::class, 'register'])->middleware('permission:access-manajemen-user')->name('register.process');
+    Route::put('/manajemen-user/{id}', [AuthController::class, 'updateUser'])->middleware('permission:access-manajemen-user')->name('users.update');
+    Route::delete('/manajemen-user/{id}', [AuthController::class, 'deleteUser'])->middleware('permission:access-manajemen-user')->name('users.delete');
 
         // Histori Session / Riwayat Login-Logout (Khusus Admin)
         Route::get('/histori-session', [AuthController::class, 'historiSession'])->name('session.history');
@@ -37,49 +36,47 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::delete('/operator/{id}', [AuthController::class, 'deleteOperator'])->name('operator.destroy');
     });
     
-    // MASTER SEALING
-    Route::prefix('master-sealing')->middleware('permission:access-master-part')->name('master.sealing.')->group(function () {
-        Route::get('/', [MasterSealingController::class, 'index'])->name('index');
-        // Finish Good Routes
-        Route::post('/fg/store', [MasterSealingController::class, 'storeFg'])->name('fg.store');
-        Route::put('/fg/update/{id}', [MasterSealingController::class, 'updateFg'])->name('fg.update');
-        Route::delete('/fg/delete/{id}', [MasterSealingController::class, 'destroyFg'])->name('fg.destroy');
-        // Child Part Routes
-        Route::post('/cp/store', [MasterSealingController::class, 'storeCp'])->name('cp.store');
-        Route::put('/cp/update/{id}', [MasterSealingController::class, 'updateCp'])->name('cp.update');
-        Route::delete('/cp/delete/{id}', [MasterSealingController::class, 'destroyCp'])->name('cp.destroy');
-        // BOM Routes
-        Route::post('/bom/store', [MasterSealingController::class, 'storeBom'])->name('bom.store');
-        Route::put('/bom/update/{barcode}/{childPart}', [MasterSealingController::class, 'updateBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.update');
-        Route::delete('/bom/delete/{barcode}/{childPart}', [MasterSealingController::class, 'destroyBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->name('bom.destroy');
+    // MASTER SEALING — GET (view-only) vs POST/PUT/DELETE (full access)
+    Route::prefix('master-sealing')->name('master.sealing.')->group(function () {
+        // View-only routes
+        Route::get('/', [MasterSealingController::class, 'index'])->middleware('permission:view-master-part')->name('index');
+        // Write routes (full access)
+        Route::post('/fg/store', [MasterSealingController::class, 'storeFg'])->middleware('permission:access-master-part')->name('fg.store');
+        Route::put('/fg/update/{id}', [MasterSealingController::class, 'updateFg'])->middleware('permission:access-master-part')->name('fg.update');
+        Route::delete('/fg/delete/{id}', [MasterSealingController::class, 'destroyFg'])->middleware('permission:access-master-part')->name('fg.destroy');
+        Route::post('/cp/store', [MasterSealingController::class, 'storeCp'])->middleware('permission:access-master-part')->name('cp.store');
+        Route::put('/cp/update/{id}', [MasterSealingController::class, 'updateCp'])->middleware('permission:access-master-part')->name('cp.update');
+        Route::delete('/cp/delete/{id}', [MasterSealingController::class, 'destroyCp'])->middleware('permission:access-master-part')->name('cp.destroy');
+        Route::post('/bom/store', [MasterSealingController::class, 'storeBom'])->middleware('permission:access-master-part')->name('bom.store');
+        Route::put('/bom/update/{barcode}/{childPart}', [MasterSealingController::class, 'updateBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->middleware('permission:access-master-part')->name('bom.update');
+        Route::delete('/bom/delete/{barcode}/{childPart}', [MasterSealingController::class, 'destroyBom'])->where(['barcode' => '[^/]+', 'childPart' => '[^/]+'])->middleware('permission:access-master-part')->name('bom.destroy');
     });
-// SEALING SETTING
-    Route::middleware('permission:access-sealing-setting')->group(function () {
-        Route::get('/sealing-setting', [SettingSealingController::class, 'index'])
-            ->name('sealing.setting');
+// SEALING SETTING — GET (view-only) vs PUT (full access)
+    Route::get('/sealing-setting', [SettingSealingController::class, 'index'])
+        ->middleware('permission:view-sealing-setting')
+        ->name('sealing.setting');
 
-        Route::put('/sealing-setting', [SettingSealingController::class, 'update'])
-            ->name('sealing.setting.update');
+    Route::put('/sealing-setting', [SettingSealingController::class, 'update'])
+        ->middleware('permission:access-sealing-setting')
+        ->name('sealing.setting.update');
+
+// SEALING PLAN — GET (view-only) vs POST (full access)
+    Route::prefix('sealing-plan')->name('sealing.plan.')->group(function () {
+        Route::get('/', [SealingPlanController::class, 'index'])->middleware('permission:view-sealing-plan')->name('index');
+        Route::post('/', [SealingPlanController::class, 'store'])->middleware('permission:access-sealing-plan')->name('store');
+        Route::post('/update/{id}', [SealingPlanController::class, 'update'])->middleware('permission:access-sealing-plan')->name('update');
     });
 
-// SEALING PLAN
-    Route::prefix('sealing-plan')->middleware('permission:access-sealing-plan')->name('sealing.plan.')->group(function () {
-        Route::get('/', [SealingPlanController::class, 'index'])->name('index');
-        Route::post('/', [SealingPlanController::class, 'store'])->name('store');
-        Route::post('/update/{id}', [SealingPlanController::class, 'update'])->name('update');
-    });
-
-    // SCAN/console
-    Route::get('/scan/console', [ScanController::class, 'console'])->middleware('permission:access-scan-console')->name('scan.console');
+    // SCAN/console — GET (view-only) vs POST (full access)
+    Route::get('/scan/console', [ScanController::class, 'console'])->middleware('permission:view-scan-console')->name('scan.console');
     Route::post('/scan/store', [ScanController::class, 'consolestore'])->middleware('permission:access-scan-console')->name('scan.store');
-    Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->middleware('permission:access-stock-card')->name('scan.stock_card');
+    Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->middleware('permission:view-stock-card')->name('scan.stock_card');
     Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->middleware('permission:access-stock-adjustment')->name('scan.stock_adjustment.store');
-    Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->middleware('permission:access-stock-in')->name('scan.stock_in.form');
+    Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->middleware('permission:view-stock-in')->name('scan.stock_in.form');
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
-    Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:access-ng-log')->name('scan.nglog');
+    Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:view-ng-log')->name('scan.nglog');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
     Route::get('/scan/riwayat-scan', [ScanController::class, 'riwayatScan'])->name('scan.history');
-});
 
 // DASHBOARD SLIDE & COATING (Bebas / Public atau sesuaikan kebutuhan)
 Route::get('/slide', function () {
