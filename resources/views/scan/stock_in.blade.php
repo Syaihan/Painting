@@ -15,22 +15,28 @@
                     </div>
                 </div>
 
-                <!-- Aksi: Tombol Buka Modal & Form Search Riwayat -->
-                <div class="flex flex-col sm:flex-row items-center gap-3">
-                    <form action="{{ route('scan.stock_in.form') }}" method="GET" class="flex items-center gap-2 w-full sm:w-auto">
-                        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari Part / Delivery / PIC..." class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 w-full sm:w-60">
-                        <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1.5 px-4 rounded-lg shadow transition text-sm">
+                <!-- Aksi: Form Search & Tombol Aksi -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 w-full">
+                    <!-- Form Pencarian & Filter Tanggal -->
+                    <form action="{{ route('scan.stock_in.form') }}" method="GET" class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                        <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari Part / Delivery / PIC..." class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 min-w-[140px] sm:w-64">
+                        <input type="date" name="start_date" value="{{ $startDate ?? '' }}" class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 min-w-[120px] sm:w-48">
+                        <input type="date" name="end_date" value="{{ $endDate ?? '' }}" class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 min-w-[120px] sm:w-48">
+                        <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1.5 px-4 rounded-lg shadow transition text-sm whitespace-nowrap">
                             Cari
                         </button>
-                        @if(isset($search) && $search != '')
-                            <a href="{{ route('scan.stock_in.form') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-lg text-sm transition">
+                        <a href="{{ route('scan.stock_in.export', ['search' => $search ?? '', 'start_date' => $startDate ?? '', 'end_date' => $endDate ?? '']) }}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-4 rounded-lg shadow transition text-sm flex items-center gap-2 whitespace-nowrap">
+                            <span>📥</span> Export CSV
+                        </a>
+                        @if(isset($search) && $search != '' || isset($startDate) || isset($endDate))
+                            <a href="{{ route('scan.stock_in.form') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-lg text-sm transition whitespace-nowrap">
                                 Reset
                             </a>
                         @endif
                     </form>
 
                     <!-- Tombol Add Stock In -->
-                    <button @click="openModal = true" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition text-sm flex items-center justify-center gap-2">
+                    <button @click="openModal = true" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition text-sm flex items-center justify-center gap-2 whitespace-nowrap">
                         <span>➕</span> Add Stock In
                     </button>
                 </div>
@@ -104,7 +110,7 @@
 
             <!-- PAGINATION -->
             <div class="mt-4 pt-4 border-t border-gray-100">
-                {{ $stockInLogs->appends(['search' => $search])->links() }}
+                {{ $stockInLogs->appends(['search' => $search, 'start_date' => $startDate, 'end_date' => $endDate])->links() }}
             </div>
         </div>
 

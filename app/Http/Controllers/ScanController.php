@@ -203,10 +203,17 @@ class ScanController extends Controller
     {
         $activeMenu = 'Stock In';
         $search = $request->input('search');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
         $childParts = ChildPart::orderBy('part_number_child_part', 'asc')->get();
 
         $query = DB::table('t_log_stock_in')->orderBy('t_log_stock_in_timestamp', 'desc');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_stock_in_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
 
         if ($search) {
             $query->where('t_log_stock_in_child_part', 'like', "%{$search}%")
@@ -218,7 +225,64 @@ class ScanController extends Controller
         $stockInLogs = $query->paginate(10);
         $authInfo = $this->getPicAndGroup();
 
-        return view('scan.stock_in', array_merge(compact('activeMenu', 'childParts', 'stockInLogs', 'search'), $authInfo));
+        return view('scan.stock_in', array_merge(compact('activeMenu', 'childParts', 'stockInLogs', 'search', 'startDate', 'endDate'), $authInfo));
+    }
+
+    public function exportStockInExcel(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $search = $request->input('search');
+
+        $query = DB::table('t_log_stock_in');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_stock_in_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        if ($search) {
+            $query->where('t_log_stock_in_child_part', 'like', "%{$search}%")
+                ->orWhere('t_log_stock_in_part_name', 'like', "%{$search}%")
+                ->orWhere('t_log_stock_in_delivery', 'like', "%{$search}%")
+                ->orWhere('t_log_stock_in_pic', 'like', "%{$search}%");
+        }
+
+        $stockIns = $query->orderBy('t_log_stock_in_timestamp', 'desc')->get();
+
+        // Generate CSV
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=stock_in_" . date('Y-m-d') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-control" => "must-revalidate",
+        ];
+
+        $columnsName = ['No', 'Timestamp', 'Part Number', 'Part Name', 'Qty', 'Delivery Man', 'PIC', 'Grup'];
+
+        $callback = function() use ($stockIns, $columnsName) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columnsName);
+
+            $no = 0;
+            foreach ($stockIns as $log) {
+                $no++;
+                $row = [
+                    $no,
+                    $log->t_log_stock_in_timestamp,
+                    $log->t_log_stock_in_child_part,
+                    $log->t_log_stock_in_part_name,
+                    $log->t_log_stock_in_qty,
+                    $log->t_log_stock_in_delivery,
+                    $log->t_log_stock_in_pic,
+                    $log->t_log_stock_in_grup,
+                ];
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function stockInStore(Request $request)

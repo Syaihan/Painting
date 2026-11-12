@@ -75,11 +75,11 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->middleware('permission:access-stock-adjustment')->name('scan.stock_adjustment.store');
     Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->middleware('permission:view-stock-in')->name('scan.stock_in.form');
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
+    Route::get('/scan/stock-in/export', [ScanController::class, 'exportStockInExcel'])->middleware('permission:view-stock-in')->name('scan.stock_in.export');
     Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:view-ng-log')->name('scan.nglog');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
     Route::get('/scan/riwayat-scan', [ScanController::class, 'riwayatScan'])->name('scan.history');
-Route::get('/scan/export-excel', [ScanController::class, 'exportExcel'])->name('scan.export-excel');
-
+    
 // DASHBOARD SLIDE & COATING (Bebas / Public atau sesuaikan kebutuhan)
 Route::get('/slide', function () {
     return view('dashboardslide', [
@@ -103,4 +103,4 @@ Route::get('/', function () {
         'activeMenu' => 'Dashboard',
     ]);
 });
-Route::get("/scan/export-stock-in-excel", [ScanController::class, "exportStockInExcel"]);
+
