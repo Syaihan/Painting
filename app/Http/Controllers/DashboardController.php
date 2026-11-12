@@ -209,9 +209,12 @@ class DashboardController extends Controller
             ->orderBy('t_log_sealing_plan_barcode_fg', 'asc')
             ->get()
             ->map(function ($row) {
+                $fgName = \App\Models\FinishGood::where('barcode_fg', $row->barcode_fg)
+                    ->value('fg_name');
+
                 return [
-                    'fg'       => $row->barcode_fg,
-                    'planned'  => (int) $row->planned,
+                    'fg'       => $fgName ?: $row->barcode_fg,
+                    'planned'  => 0, // planned belum di-set, selalu 0
                     'actual'   => (int) $row->actual,
                 ];
             });
