@@ -37,6 +37,16 @@
                         <span>📜</span> Log
                     </button>
 
+                    <!-- Tombol Export Log Adjustment -->
+                    <form id="exportAdjustmentForm" action="{{ route('scan.export-adjustment-excel') }}" method="GET" class="hidden">
+                        <input type="hidden" name="start_date" id="exportStartDate">
+                        <input type="hidden" name="end_date" id="exportEndDate">
+                        <input type="hidden" name="search" id="exportSearch">
+                    </form>
+                    <button id="exportAdjustmentBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 px-3 rounded-lg shadow transition text-sm flex items-center gap-1.5" onclick="document.getElementById('exportAdjustmentForm').submit()">
+                        <span>📥</span> Export
+                    </button>
+
                     <!-- Tombol New Adjustment -->
                     <button @click="openModal = true" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-1.5 px-3 rounded-lg shadow transition text-sm flex items-center gap-1.5">
                         <span>⚙️</span> Adjustment

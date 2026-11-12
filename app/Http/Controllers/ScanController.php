@@ -536,4 +536,62 @@ class ScanController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function exportAdjustmentExcel(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $search = $request->input('search');
+
+        $query = DB::table('t_log_stock_adjustment');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_stock_adjustment_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        if ($search) {
+            $query->where('t_log_stock_adjustment_child_part', 'like', "%{$search}%")
+                ->orWhere('t_log_stock_adjustment_part_name', 'like', "%{$search}%");
+        }
+
+        $adjustments = $query->orderby('t_log_stock_adjustment_timestamp', 'desc')->get();
+
+        // Generate CSV
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=stock_adjustment_" . date('Y-m-d') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-control" => "must-revalidate",
+        ];
+
+        $columnsName = ['No', 'Tanggal', 'Child Part', 'Nama Material', 'Type', 'Qty', 'Stock Before', 'Stock After', 'Alasan', 'PIC', 'Grup'];
+
+        $callback = function() use ($adjustments, $columnsName) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columnsName);
+
+            $no = 0;
+            foreach ($adjustments as $adj) {
+                $no++;
+                $row = [
+                    $no,
+                    $adj->t_log_stock_adjustment_timestamp,
+                    $adj->t_log_stock_adjustment_child_part,
+                    $adj->t_log_stock_adjustment_part_name,
+                    $adj->t_log_stock_adjustment_type == 'IN' ? 'IN' : 'OUT',
+                    number_format($adj->t_log_stock_adjustment_qty),
+                    number_format($adj->t_log_stock_adjustment_stock_before),
+                    number_format($adj->t_log_stock_adjustment_stock_after),
+                    $adj->t_log_stock_adjustment_reason,
+                    $adj->t_log_stock_adjustment_pic,
+                    $adj->t_log_stock_adjustment_grup,
+                ];
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

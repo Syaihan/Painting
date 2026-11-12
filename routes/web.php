@@ -71,6 +71,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/scan/console', [ScanController::class, 'console'])->middleware('permission:view-scan-console')->name('scan.console');
     Route::post('/scan/store', [ScanController::class, 'consolestore'])->middleware('permission:access-scan-console')->name('scan.store');
     Route::get('/scan/stock-card', [ScanController::class, 'stockCard'])->middleware('permission:view-stock-card')->name('scan.stock_card');
+    Route::get("/scan/export-adjustment-excel", [ScanController::class, "exportAdjustmentExcel"])->name("scan.export-adjustment-excel");
     Route::post('/scan/stock-adjustment/store', [ScanController::class, 'adjustmentStore'])->middleware('permission:access-stock-adjustment')->name('scan.stock_adjustment.store');
     Route::get('/scan/stock-in', [ScanController::class, 'stockInForm'])->middleware('permission:view-stock-in')->name('scan.stock_in.form');
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
@@ -102,3 +103,4 @@ Route::get('/', function () {
         'activeMenu' => 'Dashboard',
     ]);
 });
+Route::get("/scan/export-stock-in-excel", [ScanController::class, "exportStockInExcel"]);
