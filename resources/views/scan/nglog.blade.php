@@ -110,7 +110,32 @@
 
         <!-- TABEL RIWAYAT NG -->
         <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-200 p-6">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">Riwayat NG Sealing Terbaru</h3>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-0">Riwayat NG Sealing Terbaru</h3>
+                
+                <!-- Filter Tanggal & Export -->
+                <form action="{{ route('scan.nglog') }}" method="GET" class="flex items-center gap-2 w-full md:w-auto flex-wrap">
+                    <div class="flex flex-col gap-1 items-center">
+                        <label class="text-xs font-semibold text-gray-600 uppercase whitespace-nowrap">Start Date</label>
+                        <input type="date" name="start_date" value="{{ $startDate ?? '' }}" class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 min-w-[120px] sm:w-48">
+                    </div>
+                    <div class="flex flex-col gap-1 items-center">
+                        <label class="text-xs font-semibold text-gray-600 uppercase whitespace-nowrap">End Date</label>
+                        <input type="date" name="end_date" value="{{ $endDate ?? '' }}" class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-1.5 px-3 min-w-[120px] sm:w-48">
+                    </div>
+                    <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1.5 px-4 rounded-lg shadow transition text-sm whitespace-nowrap">
+                        Filter
+                    </button>
+                    <a href="{{ route('scan.nglog.export', ['start_date' => $startDate ?? '', 'end_date' => $endDate ?? '']) }}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-4 rounded-lg shadow transition text-sm flex items-center gap-2 whitespace-nowrap">
+                        <span>📥</span> Export CSV
+                    </a>
+                    @if(isset($startDate) || isset($endDate))
+                        <a href="{{ route('scan.nglog') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded-lg text-sm transition whitespace-nowrap">
+                            Reset
+                        </a>
+                    @endif
+                </form>
+            </div>
             
             <div class="max-h-[350px] overflow-y-auto overflow-x-auto border border-gray-200 rounded">
                 <table class="w-full text-center border-collapse text-xs">

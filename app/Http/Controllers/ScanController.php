@@ -415,15 +415,74 @@ class ScanController extends Controller
         }
     }
 
-    public function nglog()
+    public function nglog(Request $request)
     {
         $activeMenu = 'NG Log';
-        $ngHistory  = NgSealingLog::orderBy('t_log_ng_sealing_id', 'desc')->get();
+        $startDate  = $request->input('start_date');
+        $endDate    = $request->input('end_date');
+
+        $query = NgSealingLog::orderBy('t_log_ng_sealing_id', 'desc');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_ng_sealing_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        $ngHistory  = $query->get();
         $childParts = ChildPart::orderBy('part_number_child_part', 'asc')->get();
         $operators  = $this->getOperatorsByRole();
         $grup       = session('operator_role', '-');
 
-        return view('scan.nglog', compact('ngHistory', 'childParts', 'activeMenu', 'operators', 'grup'));
+        return view('scan.nglog', compact('ngHistory', 'childParts', 'activeMenu', 'operators', 'grup', 'startDate', 'endDate'));
+    }
+
+    public function exportNglogExcel(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate   = $request->input('end_date');
+
+        $query = NgSealingLog::orderBy('t_log_ng_sealing_id', 'desc');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_ng_sealing_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        $ngLogs = $query->get();
+
+        // Generate CSV
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=ng_log_" . date('Y-m-d') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-control" => "must-revalidate",
+        ];
+
+        $columnsName = ['No', 'Timestamp', 'Child Part', 'Part Name', 'Qty', 'Keterangan', 'Operator', 'Grup'];
+
+        $callback = function() use ($ngLogs, $columnsName) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columnsName);
+
+            $no = 0;
+            foreach ($ngLogs as $log) {
+                $no++;
+                $row = [
+                    $no,
+                    $log->t_log_ng_sealing_timestamp,
+                    $log->t_log_ng_sealing_child_part,
+                    $log->t_log_ng_sealing_part_name,
+                    $log->t_log_ng_sealing_qty,
+                    $log->t_log_ng_sealing_ket,
+                    $log->t_log_ng_sealing_operator,
+                    'Grup ' . $log->t_log_ng_sealing_grup,
+                ];
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function nglogstore(Request $request)

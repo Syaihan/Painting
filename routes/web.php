@@ -77,6 +77,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/scan/stock-in', [ScanController::class, 'stockInStore'])->middleware('permission:access-stock-in')->name('scan.stock_in.store');
     Route::get('/scan/stock-in/export', [ScanController::class, 'exportStockInExcel'])->middleware('permission:view-stock-in')->name('scan.stock_in.export');
     Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:view-ng-log')->name('scan.nglog');
+    Route::get('/scan/nglog/export', [ScanController::class, 'exportNglogExcel'])->middleware('permission:view-ng-log')->name('scan.nglog.export');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
     Route::get('/scan/riwayat-scan', [ScanController::class, 'riwayatScan'])->name('scan.history');
     
