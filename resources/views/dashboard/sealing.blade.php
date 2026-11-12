@@ -102,16 +102,16 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div>
-                            <label class="text-[10px] text-gray-500 block mb-1">Mulai</label>
+                            <label class="text-[10px] text-gray-500 block mb-1">Start</label>
                             <input type="date" id="filter-date-start" class="w-full px-2.5 py-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                         <div>
-                            <label class="text-[10px] text-gray-500 block mb-1">Selesai</label>
+                            <label class="text-[10px] text-gray-500 block mb-1">End</label>
                             <input type="date" id="filter-date-end" class="w-full px-2.5 py-2 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="applyFilterChart()" class="flex-1 bg-blue-600 text-white text-xs py-2 rounded-md hover:bg-blue-700 transition-colors">Terapkan</button>
+                        <button onclick="applyFilterChart()" class="flex-1 bg-blue-600 text-white text-xs py-2 rounded-md hover:bg-blue-700 transition-colors">Apply</button>
                         <button onclick="resetFilterChart()" class="flex-1 bg-gray-100 text-gray-700 text-xs py-2 rounded-md hover:bg-gray-200 transition-colors border border-gray-300">Reset</button>
                     </div>
                 </div>

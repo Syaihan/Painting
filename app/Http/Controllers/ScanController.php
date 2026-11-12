@@ -464,4 +464,76 @@ class ScanController extends Controller
             'search' => $searches
         ]);
     }
+
+    public function exportExcel(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $searches = $request->input('search', []);
+
+        $query = ScanLog::query()
+            ->select('t_log_scan.*', 'm_finish_good.fg_name')
+            ->leftJoin('m_finish_good', 't_log_scan.t_log_scan_fg', '=', 'm_finish_good.barcode_fg');
+
+        // Filter Tanggal
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('t_log_scan_timestamp', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }
+
+        // Pencarian Global (Semua Kolom)
+        if (!empty($searches['all'])) {
+            $keywordAll = $searches['all'];
+            $query->where(function($q) use ($keywordAll) {
+                $q->where('t_log_scan_fg', 'like', "%{$keywordAll}%")
+                    ->orWhere('m_finish_good.fg_name', 'like', "%{$keywordAll}%")
+                    ->orWhere('t_log_scan_operator', 'like', "%{$keywordAll}%")
+                    ->orWhere('t_log_scan_pic', 'like', "%{$keywordAll}%")
+                    ->orWhere('t_log_scan_grup', 'like', "%{$keywordAll}%");
+            });
+        }
+
+        // Pencarian Spesifik Per Kolom
+        $columns = ['t_log_scan_fg', 't_log_scan_operator', 't_log_scan_pic', 't_log_scan_grup'];
+        foreach ($columns as $col) {
+            if (!empty($searches[$col])) {
+                $query->where($col, 'like', "%{$searches[$col]}%");
+            }
+        }
+
+        $logs = $query->orderby('t_log_scan_timestamp', 'desc')->get();
+
+        // Generate CSV
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=riwayat_scan_" . date('Y-m-d') . ".csv",
+            "Pragma" => "no-cache",
+            "Cache-control" => "must-revalidate",
+        ];
+
+        $columnsName = ['No', 'Finished Good (FG)', 'Nama FG', 'Qty', 'Operator', 'PIC', 'Grup', 'Waktu Scan'];
+
+        $callback = function() use ($logs, $columnsName) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columnsName);
+
+            $no = 0;
+            foreach ($logs as $log) {
+                $no++;
+                $row = [
+                    $no,
+                    $log->t_log_scan_fg,
+                    $log->fg_name,
+                    $log->t_log_scan_qty,
+                    $log->t_log_scan_operator,
+                    $log->t_log_scan_pic,
+                    $log->t_log_scan_grup,
+                    $log->t_log_scan_timestamp,
+                ];
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

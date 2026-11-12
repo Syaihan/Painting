@@ -77,6 +77,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/scan/nglog', [ScanController::class, 'ngLog'])->middleware('permission:view-ng-log')->name('scan.nglog');
     Route::post('/scan/nglog/store', [ScanController::class, 'ngLogStore'])->middleware('permission:access-ng-log')->name('scan.nglog.store');
     Route::get('/scan/riwayat-scan', [ScanController::class, 'riwayatScan'])->name('scan.history');
+Route::get('/scan/export-excel', [ScanController::class, 'exportExcel'])->name('scan.export-excel');
 
 // DASHBOARD SLIDE & COATING (Bebas / Public atau sesuaikan kebutuhan)
 Route::get('/slide', function () {

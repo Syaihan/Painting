@@ -55,6 +55,47 @@
                     t_log_scan_grup: ''
                 };
                 this.fetchData();
+            },
+
+            exportData() {
+                this.loading = true;
+                const url = '{{ route('scan.export-excel') }}';
+                const params = new URLSearchParams({
+                    start_date: this.startDate,
+                    end_date: this.endDate,
+                    'search[all]': this.search.all,
+                    'search[t_log_scan_fg]': this.search.t_log_scan_fg,
+                    'search[fg_name]': this.search.fg_name,
+                    'search[t_log_scan_operator]': this.search.t_log_scan_operator,
+                    'search[t_log_scan_pic]': this.search.t_log_scan_pic,
+                    'search[t_log_scan_grup]': this.search.t_log_scan_grup
+                });
+
+                fetch(`${url}?${params.toString()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'riwayat_scan_{{ date("Y-m-d", time())}}.csv';
+                    document.body.append(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                    this.loading = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.loading = false;
+                    alert('Gagal mengekspor data: ' + error.message);
+                });
             }
          }">
         
@@ -62,6 +103,11 @@
         <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <h2 class="text-sm font-bold text-gray-800 uppercase tracking-wider">Riwayat Log Scan Material</h2>
             <p class="text-xs text-gray-400 mt-0.5">Filter dan pantau seluruh aktivitas pemindaian berdasarkan tanggal dan pencarian spesifik per kolom.</p>
+            <div class="mt-3">
+                <button id="exportBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition mr-2" title="Export Data" @click="exportData">
+                    <svg class="inline-block mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14l4-4 4 4"/></svg>Export
+                </button>
+            </div>
         </div>
 
         <!-- Panel Filter & Pencarian Utama (Global Search & Date) -->
