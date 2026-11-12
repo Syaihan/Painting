@@ -214,7 +214,7 @@ class DashboardController extends Controller
 
                 return [
                     'fg'       => $fgName ?: $row->barcode_fg,
-                    'planned'  => 0, // planned belum di-set, selalu 0
+                    'planned'  => (int) $row->planned, // planned belum di-set, selalu 0
                     'actual'   => (int) $row->actual,
                 ];
             });
